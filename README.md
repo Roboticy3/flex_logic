@@ -14,7 +14,13 @@ Cool features:
 I'll try to keep the simulation inspired by the Verilog standard.
 
 https://www.eg.bucknell.edu/~csci320/2016-fall/wp-content/uploads/2015/08/verilog-std-1364-2005.pdf
+ - All of chapter seven. Tables 7-1 and 7-3 particularly
+ - Table 4-2. Oh my god I've been looking for this sort of info forever! Note that Z values cannot be generated naturally, only by three-state buffers.
+
 https://ieeexplore.ieee.org/document/257627
+
+Digital Design & Computer Architecture, Second Edition. Harris & Harris
+ - Friendlier explanations of Verilog concepts.
 
 I don't plan on having full conversion between the two, but they have some neat ideas on how to represent circuits efficiently that I would be missing out on if I didn't keep the document around as a resource.
 
@@ -22,5 +28,5 @@ I don't plan on having full conversion between the two, but they have some neat 
 Weak Low and Weak High will be excluded. 32-bit integers (Godot `int`) will represent variable-width values that mold themselves to whatever they've been connected to, with additional bit-masks for U (unset), Z (high impedence), and X (short circuit). 
 
 ## Nets
-Usually, I would call them wires. The standard is very keen to point out that wires do not store values themselves, but instead have their values determined by drivers. The "tri" net type solves the multiple driver problem by providing a truth table (p.26, Table 4-1) for the resolution of a wire based on its drivers. 
+Usually, I would call them wires. The standard is very keen to point out that wires do not store values themselves, but instead have their values determined by drivers. The "tri" net type solves the multiple driver problem by providing a truth table for the resolution of a wire based on its drivers. 
 
