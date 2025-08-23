@@ -20,15 +20,22 @@ enum FlexNetState {
 class FlexNet : public Node3D {
   GDCLASS(FlexNet, Node3D)
 
-  FlexNetState states[sizeof(int)] = {};
+  FlexNetState states[sizeof(int)<<3] = {};
   Vector<FlexNet *> connections = {};
+
+  TypedArray<NodePath> connection_paths = TypedArray<NodePath>();
+
+  void setup_connections();
 
 protected:
   virtual void solver(Vector<FlexNet *> &r_event_queue);
 
-  inline size_t _get_size_internal() const;
+  inline size_t _get_size_internal() const {
+    return sizeof(int)<<3;
+  }
 
   static void _bind_methods();
+  void _notification(int p_what);
 
 public:
 
@@ -48,10 +55,14 @@ public:
   void set_z(int p_mask);
   int get_z() const;
 
-  inline size_t get_size() const;
+  size_t get_size() const;
 
-  void set_connections(const TypedArray<NodePath> &p_connections);
-  TypedArray<NodePath> get_connections() const;
+  bool add_connection(FlexNet *p_connection);
+  bool remove_connection(FlexNet *p_connection);
+  TypedArray<FlexNet> get_connections();
+
+  void set_connection_paths(const TypedArray<NodePath> &p_connections);
+  TypedArray<NodePath> get_connection_paths() const;
 
   void set_state(PackedInt32Array p_state);
   PackedInt32Array get_state() const;
