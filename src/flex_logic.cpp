@@ -112,6 +112,10 @@ int FlexNet::get_z() const {
   return value;
 }
 
+size_t FlexNet::get_size() const {
+  return sizeof(int);
+}
+
 void FlexNet::set_connections(const TypedArray<NodePath> &p_connections) {
   connections.clear();
   for (int i = 0; i < p_connections.size(); ++i) {
@@ -128,9 +132,29 @@ TypedArray<NodePath> FlexNet::get_connections() const {
     if (connection) {
       result.push_back(get_path_to(connection));
     } else {
-      result.push_back(Variant::NIL);
+      result.push_back(NodePath());
     }
       
+  }
+  return result;
+}
+
+void FlexNet::set_state(PackedInt32Array p_state) {
+  for (size_t i = 0; i < sizeof(int) && i < p_state.size(); ++i) {
+    int state = p_state[i];
+    if (state >= FlexNetState::V0 && state < FlexNetState::MAX) {
+      states[i] = static_cast<FlexNetState>(state);
+      continue; 
+    }
+    // Optionally, handle invalid types (e.g., skip or set to default)
+    states[i] = FlexNetState::U; // Default to U if invalid
+  }
+}
+
+PackedInt32Array FlexNet::get_state() const {
+  PackedInt32Array result;
+  for (size_t i = 0; i < sizeof(int); ++i) {
+    result.push_back(states[i]);
   }
   return result;
 }
@@ -149,12 +173,12 @@ void FlexNet::_bind_methods() {
   ClassDB::bind_method(D_METHOD("get_x"), &FlexNet::get_x);
   ClassDB::bind_method(D_METHOD("set_z", "mask"), &FlexNet::set_z);
   ClassDB::bind_method(D_METHOD("get_z"), &FlexNet::get_z);
+  ClassDB::bind_method(D_METHOD("get_size"), &FlexNet::get_size);
   ClassDB::bind_method(D_METHOD("set_connections", "connections"), &FlexNet::set_connections);
   ClassDB::bind_method(D_METHOD("get_connections"), &FlexNet::get_connections);
+  ClassDB::bind_method(D_METHOD("set_state", "state"), &FlexNet::set_state);
+  ClassDB::bind_method(D_METHOD("get_state"), &FlexNet::get_state);
 
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "value"), "set_value", "get_value");
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "u_mask"), "set_u", "get_u");
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "x_mask"), "set_x", "get_x");
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "z_mask"), "set_z", "get_z");
-  ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "connections"), "set_connections", "get_connections");
+  ADD_PROPERTY(PropertyInfo(Variant::PACKED_INT32_ARRAY, "state", PROPERTY_HINT_ARRAY_TYPE, "int:enum/FlexNetState"), "set_state", "get_state");
+  ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "connections", PROPERTY_HINT_ARRAY_TYPE, "FlexNet"), "set_connections", "get_connections");
 }
