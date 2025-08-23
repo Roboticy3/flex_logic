@@ -1,3 +1,8 @@
+#pragma once
+
+#include <functional>
+#include <queue>
+
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/array.hpp>
@@ -6,66 +11,57 @@
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
+#include "flex_state.h"
+#include "flex_net.h"
+
 using namespace godot;
 
-enum FlexNetState {
-  V0 = 0,
-  V1 = 1,
-  X,
-  Z,
-  U,
-  MAX
-};
+class FlexLogic : public Node3D {
+  GDCLASS(FlexLogic, Node3D)
+  
+  /**
+   * Keep good locality on the simulation state by separating it from FlexNet.
+   */
+  FlexNetState* net_states = {};
 
-class FlexNet : public Node3D {
-  GDCLASS(FlexNet, Node3D)
+  /**
+   * Keep track of nets in the same order as `net_states`
+   */
+  Vector<Vector<FlexNetState *>> connections;
 
-  FlexNetState states[sizeof(int)<<3] = {};
-  Vector<FlexNet *> connections = {};
+  /**
+   * Keep track of nets in the same order as `net_states`
+   */
+  Vector<const FlexNet *> nets = {};
 
-  TypedArray<NodePath> connection_paths = TypedArray<NodePath>();
+  size_t get_net_count() const;
 
-  void setup_connections();
+  /**
+   * Each gate type has a "solver" function which takes a state and returns
+   * events. Events are added to a total queue and processed in order.
+   * 
+   * The order of `const Vector<FlexNetState *> &` is the same as the associated
+   * element in `connections`, which should be passed as a direct reference.
+   */
+  Vector<std::function<void(const Vector<FlexNetState *> &, std::queue<size_t>)>> solvers;
 
-protected:
-  virtual void solver(Vector<FlexNet *> &r_event_queue);
+  std::queue<size_t> event_queue = {};
 
-  inline size_t _get_size_internal() const {
-    return sizeof(int)<<3;
-  }
+  protected:
+    static void _bind_methods();
 
-  static void _bind_methods();
-  void _notification(int p_what);
+  public:
+    static void drive(const FlexNetState &p_from, FlexNetState &p_to);
+    static void solver_wire(const Vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue);
 
-public:
+    /**
+     * Push all events caused by `p_start_index`, then stop.
+     */
+    void step_from(size_t p_start_index);
 
-  void drive(FlexNet *r_to);
+    bool add_net(const FlexNet *p_net);
+    bool remove_net(const FlexNet *p_net);
 
-  //set each bit of p_value to the first bits of each element in state
-  void set_value(int p_value);
-  int get_value() const;
-
-  //convert all high bits to special values
-  void set_u(int p_mask);
-  int get_u() const;
-
-  void set_x(int p_mask);
-  int get_x() const;
-
-  void set_z(int p_mask);
-  int get_z() const;
-
-  size_t get_size() const;
-
-  bool add_connection(FlexNet *p_connection);
-  bool remove_connection(FlexNet *p_connection);
-  TypedArray<FlexNet> get_connections();
-
-  void set_connection_paths(const TypedArray<NodePath> &p_connections);
-  TypedArray<NodePath> get_connection_paths() const;
-
-  void set_state(PackedInt32Array p_state);
-  PackedInt32Array get_state() const;
-
-  FlexNet();
+    FlexLogic();
+  
 };

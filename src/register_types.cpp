@@ -6,6 +6,7 @@
 #include <godot_cpp/godot.hpp>
 
 #include "flex_logic.h"
+#include "flex_net.h"
 
 using namespace godot;
 
@@ -16,6 +17,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	}
 
 	GDREGISTER_CLASS(FlexNet);
+	GDREGISTER_CLASS(FlexLogic);
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
