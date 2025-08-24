@@ -1,3 +1,4 @@
+#include <vector>
 #include <queue>
 
 #include <godot_cpp/variant/array.hpp>
@@ -7,6 +8,8 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/print_string.hpp>
 
+#include "flex_state.h"
+#include "flex_net.h"
 #include "flex_logic.h"
 
 using namespace godot;
@@ -42,7 +45,7 @@ void FlexLogic::drive(const FlexNetState &p_from, FlexNetState &p_to) {
   }
 }
 
-void FlexLogic::solver_wire(const Vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue) {
+void FlexLogic::solver_wire(const std::vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue) {
   if (p_states.size() < 2) {
     return;
   }
@@ -54,20 +57,82 @@ void FlexLogic::solver_wire(const Vector<FlexNetState *> &p_states, std::queue<s
   } 
 }
 
-void FlexLogic::step_from(size_t p_start_index) {
-  if (p_start_index >= get_net_count()) {
-    return;
+void FlexLogic::restore_connections_from(size_t p_id) {
+  net_states[p_id].connections.clear();
+
+
+  const FlexNet *net = nets[p_id];
+  for (const FlexNet *conn : net->get_connections_raw()) {
+    size_t i = nets.find(conn);
+    if (i != -1) {
+      net_states[p_id].connections.push_back(&net_states[i]);
+    }
+  }
+}
+
+void FlexLogic::restore_connections() {
+  for (size_t i = 0; i < nets.size(); ++i) {
+    restore_connections_from(i);
+  }
+}
+
+bool FlexLogic::add_net(const FlexNet *p_net, bool p_connect) {
+  size_t id = nets.find(p_net);
+  if (id != -1) {
+    return false;
+  }
+  id = nets.size();
+
+  net_states.push_back(FlexNetState { {WireState::U}, p_net->get_solver(), {}});
+  nets.push_back(p_net);
+
+  if (p_connect) {
+    restore_connections_from(id);
   }
 
-  event_queue.push(p_start_index);
-  FlexNetState *state = &net_states[p_start_index];
-  
-  solvers[state->solver](connections[p_start_index], event_queue);
+  return true;
+}
 
+bool FlexLogic::remove_net(const FlexNet *p_net) {
+  size_t id = nets.find(p_net);
+  if (id == -1) {
+    return false;
+  }
+
+  nets.remove_at(id);
+  net_states.erase(net_states.begin() + id);
+
+  restore_connections();
+
+  return true;
+}
+
+bool FlexLogic::step_from(const FlexNet *p_start_net) {
+  size_t id = nets.find(p_start_net);
+  if (id == -1) {
+    return false;
+  }
+
+  event_queue.push(id);
+  FlexNetState *state = &net_states[id];
+  
+  solvers[state->solver](state->connections, event_queue);
+
+  std::queue<size_t> dump(event_queue);
+  while (!dump.empty()) {
+    size_t next_id = dump.front();
+    dump.pop();
+    FlexNetState *next_state = &net_states[next_id];
+    solvers[next_state->solver](next_state->connections, event_queue);
+  }
+
+  return true;
 }
 
 void FlexLogic::_bind_methods() {
-  
+  ClassDB::bind_method(D_METHOD("add_net", "net"), &FlexLogic::add_net);
+  ClassDB::bind_method(D_METHOD("remove_net", "net"), &FlexLogic::remove_net);
+  ClassDB::bind_method(D_METHOD("step_from", "start_index"), &FlexLogic::step_from);
 }
 
 FlexLogic::FlexLogic() {

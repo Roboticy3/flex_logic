@@ -16,4 +16,5 @@ enum WireState {
 struct FlexNetState {
   WireState states[WIDTH];
   uint16_t solver;
+  std::vector<FlexNetState*> connections = {};
 } typedef FlexNetState;

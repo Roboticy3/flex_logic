@@ -36,6 +36,8 @@ func _process(delta: float) -> void:
 	
 	for i in wire_instances.size():
 		wire_instances[i].material_overlay = overlays[state[i]]
+	
+	print(get_logic())
 
 func draw_line(from:Node3D, to:Node3D):
 	var instance := wire_renderer.instantiate()

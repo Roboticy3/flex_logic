@@ -19,12 +19,7 @@ class FlexNet : public Node3D {
   FlexLogic *logic = nullptr;
   NodePath logic_path = NodePath();
 
-  /**
-   * Load `logic` from `logic_path`.
-   * If `logic_path` is invalid or does not point to a FlexLogic, create a 
-   * local one.
-   */
-  void setup_logic();
+  void update_logic_path();
 
   Vector<FlexNet *> connections = {};
   TypedArray<NodePath> connection_paths = TypedArray<NodePath>();
@@ -40,6 +35,11 @@ class FlexNet : public Node3D {
    */
   PackedInt32Array state = PackedInt32Array();
 
+  /**
+   * The index of this net in `logic->solvers`
+   */
+  uint16_t solver = 0;
+
 protected:
   static void _bind_methods();
   void _notification(int p_what);
@@ -50,15 +50,22 @@ public:
   void set_logic_path(const NodePath &p_path);
   NodePath get_logic_path() const;
 
+  void set_logic(FlexLogic *p_logic);
+  FlexLogic *get_logic() const;
+
   bool add_connection(FlexNet *p_connection);
   bool remove_connection(FlexNet *p_connection);
   TypedArray<FlexNet> get_connections();
+  Vector<FlexNet *> get_connections_raw() const;
 
   void set_connection_paths(const TypedArray<NodePath> &p_connections);
   TypedArray<NodePath> get_connection_paths() const;
 
   void set_state(PackedInt32Array p_state);
   PackedInt32Array get_state() const;
+
+  void set_solver(int p_solver);
+  uint16_t get_solver() const;
 
   FlexNet();
 };

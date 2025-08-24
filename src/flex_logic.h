@@ -1,7 +1,9 @@
 #pragma once
 
-#include <functional>
+#include <vector>
 #include <queue>
+#include <unordered_map>
+#include <functional>
 
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/templates/vector.hpp>
@@ -16,34 +18,38 @@
 
 using namespace godot;
 
+struct FlexConnection {
+  const FlexNet* net = nullptr;
+};
+
 class FlexLogic : public Node3D {
   GDCLASS(FlexLogic, Node3D)
   
   /**
    * Keep good locality on the simulation state by separating it from FlexNet.
    */
-  FlexNetState* net_states = {};
+  std::vector<FlexNetState> net_states = {};
 
   /**
-   * Keep track of nets in the same order as `net_states`
-   */
-  Vector<Vector<FlexNetState *>> connections;
-
-  /**
-   * Keep track of nets in the same order as `net_states`
+   * Keep track of nets in the same order as `net_states`. Use Vector for easier
+   * search.
    */
   Vector<const FlexNet *> nets = {};
 
   size_t get_net_count() const;
 
+  void restore_connections_from(size_t p_id);
+
   /**
    * Each gate type has a "solver" function which takes a state and returns
    * events. Events are added to a total queue and processed in order.
    * 
-   * The order of `const Vector<FlexNetState *> &` is the same as the associated
+   * The order of `const vector<FlexNetState *> &` is the same as the associated
    * element in `connections`, which should be passed as a direct reference.
    */
-  Vector<std::function<void(const Vector<FlexNetState *> &, std::queue<size_t>)>> solvers;
+  std::vector<std::function<void(const std::vector<FlexNetState *> &, std::queue<size_t>)>> solvers = {
+    FlexLogic::solver_wire
+  };
 
   std::queue<size_t> event_queue = {};
 
@@ -52,15 +58,17 @@ class FlexLogic : public Node3D {
 
   public:
     static void drive(const FlexNetState &p_from, FlexNetState &p_to);
-    static void solver_wire(const Vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue);
+    static void solver_wire(const std::vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue);
 
     /**
      * Push all events caused by `p_start_index`, then stop.
      */
-    void step_from(size_t p_start_index);
+    bool step_from(const FlexNet *p_start_net);
 
-    bool add_net(const FlexNet *p_net);
+    bool add_net(const FlexNet *p_net, bool p_connect);
     bool remove_net(const FlexNet *p_net);
+
+    void restore_connections();
 
     FlexLogic();
   
