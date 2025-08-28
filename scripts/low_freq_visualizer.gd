@@ -31,13 +31,14 @@ func _ready() -> void:
 		draw_line(self, c)
 
 func _process(delta: float) -> void:
+	
+	#print("found logic ", get_logic(), " with nets ", get_logic().nets if get_logic() else [])
+	
 	for i in min(indicator_instances.size(), show_bits):
 		indicator_instances[i].material_overlay = overlays[state[i]]
 	
 	for i in wire_instances.size():
 		wire_instances[i].material_overlay = overlays[state[i]]
-	
-	print(get_logic())
 
 func draw_line(from:Node3D, to:Node3D):
 	var instance := wire_renderer.instantiate()

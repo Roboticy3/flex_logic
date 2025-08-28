@@ -60,15 +60,18 @@ class FlexLogic : public Node3D {
     static void drive(const FlexNetState &p_from, FlexNetState &p_to);
     static void solver_wire(const std::vector<FlexNetState *> &p_states, std::queue<size_t> &r_event_queue);
 
+    void restore_connections();
+
     /**
      * Push all events caused by `p_start_index`, then stop.
      */
     bool step_from(const FlexNet *p_start_net);
 
-    bool add_net(const FlexNet *p_net, bool p_connect);
+    bool add_net(const FlexNet *p_net, PackedInt32Array p_initial_state = PackedInt32Array());
     bool remove_net(const FlexNet *p_net);
 
-    void restore_connections();
+    Array get_nets() const;
+    TypedArray<PackedInt32Array> get_state() const;
 
     FlexLogic();
   

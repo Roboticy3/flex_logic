@@ -44,11 +44,11 @@ void FlexNet::set_logic(FlexLogic *p_logic) {
   logic = p_logic;
 
   if (logic) {
-    logic->add_net(this, false);
+    logic->add_net(this);
     logic->restore_connections();
     print_line("FlexNet::set_logic: added net to logic " + String(logic->get_path()));
   } else {
-    print_line("FlexNet::set_logic: logic is null, not adding net");
+    //print_line("FlexNet::set_logic: logic is null, not adding net");
   }
 }
 
@@ -90,7 +90,7 @@ TypedArray<FlexNet> FlexNet::get_connections() {
   TypedArray<FlexNet> result;
   for (FlexNet *conn : connections) {
     result.push_back(conn);
-    print_line("pushing connection " + String(conn->get_path()));
+    //print_line("pushing connection " + String(conn->get_path()));
   }
 
   return result;
@@ -114,7 +114,7 @@ void FlexNet::setup_connections() {
     return;
   }
 
-  print_line("Setting up connections for " + get_path());
+  //print_line("Setting up connections for " + get_path());
 
   Vector<FlexNet *> old_connections = connections.duplicate();
   connections.clear();
@@ -177,13 +177,13 @@ uint16_t FlexNet::get_solver() const {
 void FlexNet::_notification(int p_what) {
   switch (p_what) {
     case NOTIFICATION_READY:
+      set_logic_path(logic_path);
       connections.clear();
-      update_logic_path();
       break;
     case NOTIFICATION_ENTER_TREE:
       // Connections may be invalid if the node was moved in the tree
+      set_logic_path(logic_path);
       connections.clear();
-      update_logic_path();
       break;
     case NOTIFICATION_EXIT_TREE:
       connections.clear();

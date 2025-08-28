@@ -76,7 +76,7 @@ void FlexLogic::restore_connections() {
   }
 }
 
-bool FlexLogic::add_net(const FlexNet *p_net, bool p_connect) {
+bool FlexLogic::add_net(const FlexNet *p_net, PackedInt32Array p_initial_state) {
   size_t id = nets.find(p_net);
   if (id != -1) {
     return false;
@@ -86,8 +86,14 @@ bool FlexLogic::add_net(const FlexNet *p_net, bool p_connect) {
   net_states.push_back(FlexNetState { {WireState::U}, p_net->get_solver(), {}});
   nets.push_back(p_net);
 
-  if (p_connect) {
-    restore_connections_from(id);
+  for (int i = 0; i < WIDTH && i < p_initial_state.size(); ++i) {
+    int val = p_initial_state[i];
+    if (val < 0 || val >= WireState::MAX) {
+      ERR_PRINT("FlexLogic::add_net: Invalid initial state value " + itos(val) + " at index " + itos(i));
+      net_states[id].states[i] = WireState::U;
+      continue;
+    }
+    net_states[id].states[i] = (WireState)val;
   }
 
   return true;
@@ -129,10 +135,36 @@ bool FlexLogic::step_from(const FlexNet *p_start_net) {
   return true;
 }
 
+Array FlexLogic::get_nets() const {
+  Array arr;
+  for (const FlexNet *net : nets) {
+    arr.push_back(net);
+  }
+  return arr;
+}
+
+TypedArray<PackedInt32Array> FlexLogic::get_state() const {
+  Array arr;
+  for (const FlexNetState &state : net_states) {
+    PackedInt32Array state_arr;
+    for (int i = 0; i < WIDTH; ++i) {
+      state_arr.push_back((int)state.states[i]);
+    }
+    arr.push_back(state_arr);
+  }
+  return arr;
+}
+
 void FlexLogic::_bind_methods() {
   ClassDB::bind_method(D_METHOD("add_net", "net"), &FlexLogic::add_net);
   ClassDB::bind_method(D_METHOD("remove_net", "net"), &FlexLogic::remove_net);
   ClassDB::bind_method(D_METHOD("step_from", "start_index"), &FlexLogic::step_from);
+  ClassDB::bind_method(D_METHOD("get_nets"), &FlexLogic::get_nets);
+  ClassDB::bind_method(D_METHOD("get_state"), &FlexLogic::get_state);
+
+  ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "nets", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_READ_ONLY), "", "get_nets");
+  ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "state", PROPERTY_HINT_ARRAY_TYPE, "PackedInt32Array", PROPERTY_USAGE_READ_ONLY), "", "get_state");
+
 }
 
 FlexLogic::FlexLogic() {
