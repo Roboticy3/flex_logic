@@ -46,7 +46,12 @@ if env["target"] in ["editor", "template_debug"]:
         sources.append(doc_data)
     except AttributeError:
         print("Not including class reference as we're targeting a pre-4.3 baseline.")
-
+    
+    if env["CC"] == "cl":  # MSVC
+        env.Append(CCFLAGS=["/Zi", "/Od", "/FS"])
+        env.Append(LINKFLAGS=["/DEBUG"])
+    else:  # GCC/Clang
+        env.Append(CCFLAGS=["-g", "-O0"])
 # .dev doesn't inhibit compatibility, so we don't need to key it.
 # .universal just means "compatible with all relevant arches" so we don't need to key it.
 suffix = env['suffix'].replace(".dev", "").replace(".universal", "")

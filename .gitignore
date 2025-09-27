@@ -29,6 +29,7 @@ compile_commands.json
 /src/gen
 
 # Binaries
+out/*
 *.o
 *.os
 *.so
@@ -52,6 +53,7 @@ compile_commands.json
 
 # VSCode
 .vscode/*
+.vs/*
 !.vscode/extensions.json
 .DS_Store
 
