@@ -1,0 +1,6 @@
+I need to hash out the requirements for how users will interact with their circuits once they have been saved to disk. There are a couple considerations.
+1. While it would be possible to save circuits in an HDL notation, that would not encode any visual information about the circuit- gate positions, accessories (the original Lageta had aesthetic stickers that you could put on circuits for fun), and other information reliant on a position on the board can't be preserved. 
+2. It's also possible the compiler could optimize designs, though I'm fuzzy on that. If true, it would make HDL formats even less possible for this.
+3. Godot has taught me a very clean yaml-style syntax, though it may not be too kind to network-style structures.
+
+The exact style should not be part of the requirements, but I just have to note explicitly that, even though HDL simulation is of great interest, it's not possible to actually use it for saving designs, and that anything that is chosen must correspond directly to an HDL design.
