@@ -1,0 +1,3 @@
+[submodule "old-code/godot-cpp"]
+	path = old-code/godot-cpp
+	url = git@github.com:godotengine/godot-cpp.git
