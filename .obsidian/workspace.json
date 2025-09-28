@@ -6,7 +6,6 @@
       {
         "id": "3b9ab46745e03681",
         "type": "tabs",
-        "dimension": 46.715817694369974,
         "children": [
           {
             "id": "eba30b21cfba10aa",
@@ -20,30 +19,6 @@
               },
               "icon": "lucide-file",
               "title": "Naive architectural overview"
-            }
-          }
-        ]
-      },
-      {
-        "id": "8028e6438d552340",
-        "type": "tabs",
-        "dimension": 53.284182305630026,
-        "children": [
-          {
-            "id": "037e80ae300845ab",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "&hacks/Requirements/User Stories.canvas",
-                "viewState": {
-                  "x": 1205.721527547711,
-                  "y": 231.90847989621932,
-                  "zoom": -0.4198973785786706
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "User Stories"
             }
           }
         ]
@@ -103,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "8e96fbe095b000e2",

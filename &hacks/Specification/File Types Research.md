@@ -1,1 +1,3 @@
 The issue of file types came up. I'm pretty unfamiliar with the different waveform types related to digital logic simulation. There must be something motivating all the specialization and variety. From the perspective of someone who wants to generate sound, what's the problem with just generating samples?
+
+I don't know if this is worthwhile. It would be better if the interface didn't specify the file types since a lot of those layouts are so complicated.

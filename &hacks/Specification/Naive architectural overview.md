@@ -2,8 +2,6 @@ A cli from the perspective of the Designer role in the [[User Stories.canvas|Use
 
 ```mermaid
 graph TD
-main --> fcircuit
-main --> fcroute
 fcircuit --> fsim
 fcroute --> fsim
 ```
@@ -11,6 +9,12 @@ fcroute --> fsim
 When the Designer runs `fcircuit`, this component constructs a blank `fcircuit`, or constructs a circuit from the given file.
 ## sn_id
 A string that is unique under a `sn_id_manager`. StringName is the equivalent primitive type in Godot. In a good implementation, this collapses to an integer.
+## I/O
+Save a load files into a simulator, generating a circuit and routes as needed.
+1. Load a simulation from a file path, adding it to the running program. The file may contain circuit data, stream data, and simulation state.
+	1. `int load(string path)`.
+2. Save a simulation from a file path. If `checkpoint` is true, the simulation's state is encoded along with the active circuit and routes.
+	1. `int save(string path, bool checkpoint)`.
 # fcircuit module
 `fcircuit` satisfied the Simulator user stories for circuits, gates, and wires, excluding the routing and actual simulation.
 ## fcircuit\<S, T>
@@ -79,18 +83,54 @@ File circuit events. A priority queue of `event<S>` ordered by minimum `delay`.
 2. Merge an event queue. If `time` is provided, the delay of every event is offset by it, allowing for a time-series append.
 	1. `void merge(const fcevents<S, T> &with)`, 
 	2. `void merge(const fcevents<S, T> &with, T time)`. 
-## event\<S>
+## event\<S, T>
 1. `const T time`
-2. `const net &drive`
+2. `const sn_id &drive`
 3. `const S value`
 # fcroute module
 ## fcstream\<S, T>
 An input or output stream that can be routed to an `fcircuit` by an `fsim`. An iterable that can iterate over changes in value or over its value on a certain step.
-1. Returns the step size of the stream. 
-	1. `T get_step_size()`. 
-2. Returns the endpoints this stream will have when attached to a circuit.
-	1. `vector<pair<const sn_id, const sn_id>> &get_endpoints()`. 
-3. Loads a stream from a path. Acceptable types: See [[File Types Research]]
+1. The step size of the stream. This is the step size the last time the stream was written to by a simulation, and is only used for playback.
+	1. `T get_step_size()`
+2. Loads a stream from a path. Acceptable types: See [[File Types Research]]
 	1. `fcstream(string path)`. 
-4. Loads a stream from iterable samples and a step size. 
+3. Loads a stream from iterable samples and a step size. 
 	1. `fcstream(iterable<S> core, T step)`. 
+4. Get the next value in the iterable.
+	1. `S next()`
+# fsim module
+The job of `fsim` is to take a circuit and streams and actually run a simulation. In the previous implementation, it's job was to pack the memory layout of the relevant objects closely, so the simulation can retain locality. However, this neglects its most basic purposes of managing the simulation loop, offering debugging interfaces, and writing to outputs.
+
+This is also the most important part to test for efficiency. If its not fast enough, it may be necessary to come up with an indexing scheme other than `sn_id` for gates that doesn't rely on hashing, or there might be some other bottleneck. 
+## fsim\<S,T>
+### Setup
+1. Set the circuit. If the circuit is the same as the previous circuit, this will force the simulation to acknowledge any changes it might have missed.
+	1. `void update_circuit(const fcircuit<S,T> &circuit)`
+2. Get the circuit.
+	1. `option<const fcircuit<S,T> &> get_circuit()`
+3. Add an input stream. If a route is already connected, the route will be driven multiple times on each cycle in the order that the streams were added. If a stream is routed multiple times it will be routed to multiple nets. But each combination of stream and route is unique.
+	1. `void add_route_in(const pair<fcstream<S,T> &stream, const pair<const sn_id, const sn_id> route>)`.
+4. Remove an input stream. Returns true if the stream was found.
+	1. `int remove_route_in(const pair<fcstream<S,T> &stream, const pair<const sn_id, const sn_id> route>)`
+5. Get the existing input streams and routes.
+	1. `const vector<const pair<fcstream<S,T>, const pair<const sn_id, const sn_id>>> get_routes_in()`
+6. Get the existing routes for a given stream.
+	1. `const vector<const pair<const sn_id, const sn_id>> get_routes_in(const fcstream<S,T> &stream)`
+7. Get the existing input streams for a given route.
+	1. `const vector<const fcstream<S,T> &> get_streams_in(const pair<const sn_id, const sn_id> route)`
+8. Repeat input functions, but for output streams instead.
+9. Repeat input functions, but for desired output streams instead.
+10. Set the step size for the simulation. All streams are assumed to update at this rate.
+	1. `T step_size`
+### Simulation
+10. Get the current event queue of the simulation.
+	1. `const fcevents<S,T> &get_queue()`
+11. Get the current time from start in the simulation. This is equivalent to the current time before the last event propagation, plus the wait time of the event queue.
+	1. `const T get_time()`
+12. Step through one event propagation, keeping the next set of events in memory. Returns 1 if the step size is reached. 
+	1. `int substep()`
+	2. When step size is reached, the outputs are written to and the next sample of each of the inputs is added to the event queue with no delay.
+	3. If the events 
+13. Step through one timestep's worth of events.
+	1. `int step()`
+14. Get the current score of the simulation. Up to the current `get_time()`, that's the ratio of matching elements between the desired streams and the matching output streams to non-matching elements.
