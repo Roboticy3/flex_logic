@@ -2,6 +2,7 @@ Attempts to implement [[Functional Requirements]].
 
 Questions to answer: what HDL environments are out there and what would it take to integrate them with another software? How is it debugged?
 
+The final result will likely be a mix of both approaches. Deepwiki code analysis has proven valuable for looking into the data structures behind different simulation libraries. It may be possible to frankenstein library code and custom code together. I thought it would be more strongly in favor of one or the other, but since it isn't, this honestly isn't in scope for requirements engineering. Still, it was a good use of time and research to dig into the existing tools.
 # 1: Dynamic Recompilation
 Main idea:
  - When a change is made to the circuit, compile to VHDL or another HDL and run.
@@ -23,12 +24,3 @@ Main idea:
 | Possibly better portability than a simulator that relies on external tools. | Hard to implement a realistic simulator.                                                       |
 | All debugging tools for regular programming are at my disposal.             | Hard to match standards of other simulators. I'm not enough of a field expert to trust my gut. |
 | Easier to adjust the simulator for design purposes.                         |                                                                                                |
-# 3. Open Source Dynamic Simulator
-Main idea:
- - Mooch off of open source. Basically CircuitVerse
- - Primary goal is to offload the implementation of the simulator without relying on a compiled system
-
-
-| Strengths                                                        | Weaknesses                                                            |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Wide array of existing features that can be directly integrated. | Current options have limited performance compare to compiled systems. |
