@@ -1,5 +1,6 @@
 The main module could be split into unique programs for manipulating each part of a circuit. This would preserve better architectural isolation in the design.
 
+# Current Object Diagram
 ```mermaid
 graph TD
 fcircuit --> fsim

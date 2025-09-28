@@ -1,0 +1,1 @@
+Whenever I say "assigned an id trivially", I'm referring a specific data type. See #9 
