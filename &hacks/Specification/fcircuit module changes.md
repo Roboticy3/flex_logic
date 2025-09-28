@@ -1,0 +1,1 @@
+The fcircuit module could benefit from being split into a core class and multiple views. One for pins, one for gates, one for wires, and one for nets. View of the state of the circuit would be reserved for the simulator.

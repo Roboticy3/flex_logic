@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "&hacks/Specification/Naive architectural overview.md",
+                "file": "&hacks/Specification/fcircuit module changes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Naive architectural overview"
+              "title": "fcircuit module changes"
             }
           }
         ]
@@ -171,9 +171,11 @@
   },
   "active": "eba30b21cfba10aa",
   "lastOpenFiles": [
-    "&hacks/Requirements/User Stories.canvas",
+    "&hacks/Specification/main module changes.md",
+    "&hacks/Specification/fcircuit module changes.md",
     "&hacks/Specification/File Types Research.md",
     "&hacks/Specification/Naive architectural overview.md",
+    "&hacks/Requirements/User Stories.canvas",
     "README.md",
     "&hacks/Requirements/Possible approaches.md",
     "&hacks/Specification",
