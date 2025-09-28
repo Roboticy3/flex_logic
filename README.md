@@ -13,7 +13,7 @@ Recently, I started taking Software Engineering in school as an elective. It tal
 ## What it does
 This weekend, I'm making a _technical specification_ for flex-logic, a library for simulating digital logic circuits. It would take months to actually code the thing, but since I already have the user stories, a technical specification at the interface level is in reach. Hopefully that's what I can present to you by noon on Sunday, along with the other design artifacts I made in the process.
 
-All artifacts from this weekend are in the `&hacks` folder.
+All artifacts from this weekend are in the `&hacks` folder of the [github repo](https://github.com/Roboticy3/flex_logic). You can also view details of the project in the [github project](https://github.com/users/Roboticy3/projects/2).
 ## How we built it
 Obsidian :)
 ## Challenges we ran into
