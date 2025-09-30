@@ -6,14 +6,14 @@ Finally, this change induces a change on the simulator module. Since the circuit
 # Object diagram
 ```mermaid
 graph TD
-fcircuit --> fcgate_v
-fcircuit --> fcwire_v
-fcircuit --> fcnet_v
-fcircuit --> fcpin_v
+fcircuit --> fcgate_c
+fcircuit --> fcwire_c
+fcircuit --> fcnet_c
+fcircuit --> fcpin_c
 ```
 # fcircuit module updates
 Each view manages its own association between objects and labels, taking a lot of load off of the circuit and expanding its capability.
-## fcgate_v\<S,T>
+## fcgate_c\<S,T>
 Add, remove, get and list gates by their label. Added and removed gates induce pins to be added and removed, and mapped to the gates such that the simulator can pass relevant nets to each solver.
 1. Add a gate to the circuit under `label`. Can fail if `label` is already in this view. If `label` is not provided, a trivial label is assigned.
 	1. `int add_gate(gate<S,T> &g, option<const sn_id> label)`
@@ -23,13 +23,13 @@ Add, remove, get and list gates by their label. Added and removed gates induce p
 	1. `const option<gate<S,T> &> get_gate(const sn_id label)`. 
 4. Returns all labels currently assigned to gates.
 	1. `const vector<const sn_id> &list_gates()`. 
-## fcpin_v
+## fcpin_c
 Add, remove, get and list pins by their label. Each pin belongs to at most one gate. If the circuit is only edited through these controllers, each pin will belong to exactly 1 gate and at most 1 net.
 1. Get connections associated with a pin at `label`
 	1. `const vector<const net &> &get_connections(const sn_id label)`
 2. List all pins.
 	1. `const vector<const sn_id> list_pins()`
-## fcwire_v
+## fcwire_c
 Add, remove, get and list wires by their label and pin endpoints. Wires belonging to the same cluster of pins are consolidated into the same net and the net is assigned an id trivially.
 1. Add a wire to the circuit. The full id of a wire is a combination of a label and two pin labels.
 	1. `int add_wire(const pair<const sn_id, const sn_id> endpoints, option<const sn_id> label)`, 
@@ -44,7 +44,7 @@ Add, remove, get and list wires by their label and pin endpoints. Wires belongin
 	1. `const vector<const pair<const sn_id, const sn_id>> &list_wire_endpoints()`. 
 6. List wires by ids
 	1. `const vector<const sn_id> &list_wire_ids()`
-## fcnet_v
+## fcnet_c
 Add, remove, get and list nets by their label and endpoints. A valid circuit can always have its wires displayed, and a net may not correspond to wires directly, so the nets cannot be edited directly.
 7. Get a net.
 	1. `const const net<S,T> &get_net(sn_id label)`
@@ -52,11 +52,14 @@ Add, remove, get and list nets by their label and endpoints. A valid circuit can
 	1. `const vector<const sn_id> &list_net()`. 
 ## fcircuit
 Associate gate/net pinout indices to pins. All other connections are secondary to simulation and thus are managed exclusively by their controllers.
-1. `map<const sn_id, vector<pair<const net &, int>>> circuit`
-Associate gate/net ids to pin layouts.
-2. `map<const sn_id, pair<const net &, vector<const sn_id>>> gates`
+1. `map<const sn_id, vector<pair<const sn_id, int>>> pin_connections`
+Associate gate/net ids to gate types.
+2. `map<const sn_id, const net &> gates`
+Associate gates to pins.
+3. `map<const sn_id, vector<vector<const sn_id>>> gate_connections`
 ## net\<S,T>
 A net has some default transformation of a state that drives it, typically with very low or zero delay. It has no pinout configuration or name, but does have a solver.
 1. `const solver<S,T> solve`
+Wherever I say "`const net &`" or "constant net reference", it may be replaceable with `const sn_id`, since the name of a net is unique and sn_id.
 ## gate\<S,T>
 Inherits/composes `net`. Comes with a pinout allowing the solver to distinguish pins in simulation and a unique type name.

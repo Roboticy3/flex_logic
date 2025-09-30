@@ -115,7 +115,7 @@ Circuit events. A priority queue of `event<S>` ordered by minimum `delay`.
 	1. `void merge(const fcevents<S, T> &with)`, 
 	2. `void merge(const fcevents<S, T> &with, T time)`. 
 ## event\<S, T>
-One event to resolve a gate and get any followup events from it.
+One event to resolve a  and get any followup events from it.
 1. `const T time`
 2. `const sn_id &drive`
 3. `const S value`

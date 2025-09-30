@@ -1,6 +1,8 @@
-Whenever I say "assigned an id trivially", I'm referring a specific data type. See #9.
+Whenever I say "assigned an id trivially", I'm referring a specific data type.
 
 I propose that this id system is used because it will keep automatic names readable in a way that will also make it easy to visualize the memory layout of the circuit.
+
+In regards to #9, see how `map<sn_id, T>` can collapse to `block_id<T>` if the `sn_id`s correspond to a sequential index sequence. This is great for memory layouts
 # block_id\<T>
 The id system requires a structure of blocks. Each block has a starting index and a length. Ideally stored in order. Blocks do not overlap.
 1. `vector<block> blocks`
@@ -10,3 +12,6 @@ Objects can be associated with their ids via linear search.
 3. `T get_object(sn_id id)`
 And ids can be associated with objects via a mapping.
 4. `sn_id get_id(T object)`
+Internally, this is a vector of options. Or a straight vector if `T` is cloneable.
+5. `vector<option<T>> elements`
+6. `vector<T> elements`
