@@ -13,32 +13,32 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "&hacks/Specification/Naive architectural overview.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Naive architectural overview"
-            }
-          }
-        ]
-      },
-      {
-        "id": "3b40e2bd6eaa372f",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "a76ea9f4048ec4ae",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
                 "file": "&hacks/Specification/Trivial id system.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
               "title": "Trivial id system"
+            }
+          }
+        ]
+      },
+      {
+        "id": "122d4cc3382efa32",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "29dedbd651919922",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
             }
           }
         ]
@@ -189,28 +189,30 @@
       "bases:Create new base": false
     }
   },
-  "active": "a76ea9f4048ec4ae",
+  "active": "eba30b21cfba10aa",
   "lastOpenFiles": [
-    "&hacks/Specification/fcircuit module changes.md",
+    "README.md",
     "&hacks/Specification/Trivial id system.md",
+    "&hacks/Specification/fcircuit module changes.md",
+    "&hacks/Requirements/User Stories.canvas",
+    "Lageta TWO/Technical Breakdown.md",
+    "Lageta TWO/Lageta 2.md",
+    "Lageta TWO/Gameplay Trailer.md",
     "&hacks/Specification/Naive architectural overview.md",
     "&hacks/Specification/main module changes.md",
-    "&hacks/Specification/File Types Research.md",
-    "&hacks/Requirements/User Stories.canvas",
-    "README.md",
-    "&hacks/Requirements/Possible approaches.md",
-    "&hacks/Specification",
     "&hacks/Requirements/Functional Requirements.md",
+    "&hacks/Requirements/Nonfunctional Requirements.md",
+    "&hacks/Requirements/Possible approaches.md",
+    "&hacks/Specification/File Types Research.md",
+    "&hacks/Specification",
     "&hacks/Requirements/Tasks/Research HDLs.md",
     "&hacks/Requirements/Tasks/Circuit Serialization.md",
-    "&hacks/Requirements/Nonfunctional Requirements.md",
     "&hacks/Requirements/Proposed NVC Process.md",
     "&hacks/Untitled.md",
     "&hacks/Requirements",
     "&hacks/Requirements/Tasks/Try out HDL Simulators.md",
     "&hacks/Requirements/Tasks",
     "&hacks",
-    "Lageta TWO/Technical Breakdown.md",
     "Lageta TWO/Specification.canvas",
     "Untitled.md",
     "Lageta TWO/Specification.md"

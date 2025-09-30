@@ -1,5 +1,6 @@
 Whenever I say "assigned an id trivially", I'm referring a specific data type. See #9.
 
+I propose that this id system is used because it will keep automatic names readable in a way that will also make it easy to visualize the memory layout of the circuit.
 # block_id\<T>
 The id system requires a structure of blocks. Each block has a starting index and a length. Ideally stored in order. Blocks do not overlap.
 1. `vector<block> blocks`

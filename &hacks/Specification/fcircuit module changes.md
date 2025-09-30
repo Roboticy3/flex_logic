@@ -1,6 +1,8 @@
 The fcircuit module could benefit from being split into a core class and multiple controllers. One for pins, one for gates, one for wires, and one for nets. View of the state of the circuit would be reserved for the simulator. This issue arises because of the unclear wire labeling scheme. This would assume a sort of Model-View-Controller architecture with the view being the unspecified game part of the design.
 
 This change also inverts the inheritance relation between nets and gates. A net is now a base type for a behavior that is associated with pins in a circuit, instead of a subtype of a behavior that owns pins, giving more segregation between the gate/net system and the circuit system.
+
+Finally, this change induces a change on the simulator module. Since the circuit structure is easier to specify, I can be more precise about how I decide the logic flow for the simulator.
 # Object diagram
 ```mermaid
 graph TD
