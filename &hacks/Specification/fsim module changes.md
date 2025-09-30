@@ -30,14 +30,25 @@ This simulator interface relies on the assumption that fcircuit stores its pin i
 ### Simulation
 10. Get the current event queue of the simulation.
 	1. `const fcevents<S,T> &get_queue()`
+	2. All input routes are added to the event queue.
 11. Get the current time from start in the simulation. This is equivalent to the current time before the last event propagation, plus the wait time of the event queue.
 	1. `const T get_time()`
-12. Step through one event propagation, keeping the next set of events in memory. Returns 1 if the step size is reached. 
+12. Set the current time of the simulation.
+	1. `int scan_to(T time)`
+13. Step through one event propagation, keeping the next set of events in memory. Returns false if the step size is reached. If called when no events are in the stack, this is equivalent to `reset`
 	1. `int substep()`
 	2. When step size is reached, the outputs are written to and the next sample of each of the inputs is added to the event queue with no delay.
-	3. If the events 
-13. Step through one timestep's worth of events. Resolve each event to a gate and pin, then update the gate's drivers, and call the gate's solver on the drivers to generate more events.
+	3. Resolve each event to a gate and pin, then update the gate's drivers, and call the gate's solver on the drivers to generate more events.
+	4. If the event is part of a route out, append it to the route.
+14. Step through one timestep's worth of events. Equivalent to calling substep until it returns false. Returns false if there are no events left in the system, indicating the simulator is done.
 	1. `int step()`
-14. Get the current score of the simulation. Up to the current `get_time()`, that's the ratio of matching elements between the desired streams and the matching output streams to non-matching elements.
-15. Drivers
+15. Get the current score of the simulation. Up to the current `get_time()`, that's the ratio of matching elements between the desired streams and the matching output streams to non-matching elements.
+	1. `double score()`
+16. Drivers
 	1. `map<const sn_id, map<int, S>> drivers`
+17. Events. If fcevents implements a `get_min_after(T time)` method instead of pop, this list can be copied selectively to generate traces.
+	1. `fcevents<S,T> events`
+## fstrace
+A complete or partial trace of a simulator. Whenever an event is processed, it is added to the trace. Traces are a type of `fcstream` and can be added to the simulator with `add_route_out`.
+1. Events.
+	1. `fcevents<S,T> events`
