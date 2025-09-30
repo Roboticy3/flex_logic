@@ -1,10 +1,24 @@
+An improved version of [[Naive architectural overview]]. Some things to keep in mind:
+1. Types of methods and fields are suggestions. When I say `const T &`, I usually mean "constant (shared) reference". When I say `T[n]`, I mean "n of T", but not necessarily a stack-allocated array (for example, it may be more efficient to store data column-wise). When I say `solver`, that type is not fully resolved. The relations should be cleared up in the UML and the types should be cleared up only when actual code starts getting written down.
+2. This architecture is generalized, so the most difficult kind of mistake to spot will be mistakes that make assumptions that are usually valid, but can't be held here. 
+3. The architecture is generalized, so optimizations pretty much have to be pushed back to the implementation, which I guess is good?
 # Global
 ## sn_id
-A string that is unique under a `sn_id_manager`. StringName is the equivalent primitive type in Godot. In a good implementation, this collapses to a pointer or integer. In the trivial id space case, `sn_id_manager` generates a labeling of the whole numbers ("A", "B", "C"...). 
+A string that is unique under a `sn_id_manager`. StringName is the equivalent primitive type in Godot. In a good implementation, this collapses to a pointer or integer. In the trivial id space case, `sn_id_manager` generates a labeling of the whole numbers ("A", "B", "C"...). This is one step up from enumerators because each key inherently has a (hopefully readable) text description, and some managers can allow for elements to be declared dynamically at runtime using hashing.
 1. String to id. If the string is not previously registered, this method will register it.
 	1. `const sn_id resolve(string s)`
 2. Convert an id back, for display purposes.
 	1. `const string &unpack(sn_id id)`
+
+Here are three possible implementations, which could be used as needed:
+## sn_idt
+`sn_id` with the trivial id layout. Unregistered strings cannot be added, and `resolve` will return an empty id if they are passed. In exchange, all ids have a trivial integer counterpart. 
+## sn_idg
+`sn_id` with a generalized trivial id layout.
+## sn_idh
+`sn_id` with a hybrid layout. Most ids will use a trivial id system, but generalized ids can also be added. 
+
+Users of sn_id may need to take a generic implementing sn_id instead, to make the specification dependent on the generics of an interface like other optimization-related choices.
 ## I/O
 Save a load files into a simulator, generating a circuit and routes as needed.
 1. Load a simulation from a file path, adding it to the running program. The file may contain circuit data, stream data, and simulation state.
@@ -78,6 +92,16 @@ An input or output stream that can be routed to an `fcircuit` by an `fsim`. An i
 	1. `fcstream(iterable<S> block, T step)`. 
 4. Get the next value in the iterable.
 	1. `S next()`
+## fcbank\<S,T,n>
+A collection of streams for the purposes of visualization and serialization. For example: one fcstream may measure one bit of an audio stream, but 16 together are used to save the output to a wav file.
+1. The collection of contained streams.
+	1. `fcstream<S,T> streams[n]`
+2. Save. Determines the saving algorithm from the file extension in `path`. If the extension is not supported, an error is returned.
+	1. `sn_id save(string path)`
+3. Load. Determines the loading algorithm from the file extension. If the extension is not supported, or the file is corrupt, and error is returned.
+	1. `sn_id load(string path)`
+4. Error codes for saving and loading.
+	1. `sn_id_manager errors`.
 ## fcevents\<S, T>
 Circuit events. A priority queue of `event<S>` ordered by minimum `delay`. Inherits fcstream
 1. View the next event
