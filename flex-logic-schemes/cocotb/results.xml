@@ -1,0 +1,8 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1760481644" />
+    <testcase name="heartbeat_monitor" classname="test_heartbeat" file="/home/pablo/lang-experiments/cocotb/test_heartbeat.py" lineno="5" time="52.097907304763794" sim_time_ns="50.0" ratio_time="0.9597314477049644">
+      <failure error_type="KeyboardInterrupt" error_msg="" />
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,3 +1,6 @@
 [submodule "old-code/godot-cpp"]
 	path = old-code/godot-cpp
 	url = git@github.com:godotengine/godot-cpp.git
+[submodule "flex-logic-schemes/ghdl-embedded/ghdl"]
+	path = flex-logic-schemes/ghdl-embedded/ghdl
+	url = https://github.com/ghdl/ghdl.git
