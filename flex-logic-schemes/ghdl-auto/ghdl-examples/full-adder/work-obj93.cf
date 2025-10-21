@@ -1,7 +1,0 @@
-v 4
-file . "adder_tb.vhd" "c53aab0e1a5c559e8d0bd281bdb5915149dcbdb2" "20251021021150.883":
-  entity adder_tb at 2( 30) + 0 on 13;
-  architecture behav of adder_tb at 5( 64) + 0 on 14;
-file . "adder.vhd" "07ee25812b11d0d57c4e55d1dbf6c290e978f329" "20251021021146.133":
-  entity adder at 1( 0) + 0 on 11;
-  architecture rt1 of adder at 10( 203) + 0 on 12;
