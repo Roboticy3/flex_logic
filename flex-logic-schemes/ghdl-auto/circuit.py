@@ -1,4 +1,5 @@
-import subprocess
+import subprocess, os, glob
+from typing import Iterable
 
 """
 Digital logic circuit represented as a GHDL testbench. 
@@ -6,9 +7,36 @@ Gates are included as separate vhdl files.
 Any python GHDL solution is enough to simulate and interact with the circuit simulation.
 """
 class GHDLCircuit:
-  def __init__(self, include:list[str], label:str):
-    self.include = include
-    self.label = label
+  pass
+
+"""
+Simplified version of GHDLCircuit renders a static testbench as a circuit.
+"""
+class GHDLTestbench:
+  def __init__(self, target_dir:str, components:list[str], testbench:str, ext:str) -> None:
+    self.target_dir = target_dir
+    self.components = components
+    self.testbench = testbench
+    self.ext = ext
   
-  def compile(self):
-    subprocess.run(["ghdl", "-o", "-i", *self.include])
+  def get_component_paths(self) -> Iterable[str]:
+    return map(lambda c: f"{c}.{self.ext}", self.components)
+  
+  def get_testbench_path(self) -> str:
+    return f"{self.testbench}.{self.ext}"
+  
+  def compile(self) -> None:
+    analysis_args = ["ghdl", "-a", 
+      *self.get_component_paths(), self.get_testbench_path()
+    ]
+    subprocess.run(analysis_args, cwd=self.target_dir)
+    
+    elaboration_args = ["ghdl", "-e", self.testbench]
+    subprocess.run(elaboration_args, cwd=self.target_dir)
+  
+  def clean(self):
+    subprocess.run(["rm", 
+      *glob.glob("*.o", root_dir=self.target_dir), 
+      *glob.glob("*.cf", root_dir=self.target_dir), 
+      self.testbench
+    ], cwd=self.target_dir)
