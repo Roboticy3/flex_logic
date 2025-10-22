@@ -1,0 +1,3 @@
+Xor circuit composed of nand gates. This is another example of a simple test bench, with the main differences being that A. I mostly wrote it myself and B. The subject of the testbench is a circuit of combinatorial gates, as opposed to a more complex combination of units. This helps show what the process for automatically converting a graphical circuit to vhdl might look like.
+
+It does occur to me that, if GHDL has the facilities to convert a vhdl file to symbols and simulate it efficiently, that it may be more efficient to build the connections manually using a wrapper library.

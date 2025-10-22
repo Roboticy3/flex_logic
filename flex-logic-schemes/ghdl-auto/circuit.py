@@ -40,3 +40,23 @@ class GHDLTestbench:
       *glob.glob("*.cf", root_dir=self.target_dir), 
       self.testbench
     ], cwd=self.target_dir)
+
+"""
+Next step up from GHDLTestbench, allowing for construction of the testbench
+from text.
+"""
+class GHDLStringTestbench(GHDLTestbench):
+  def __init__(self, target_dir, components, testbench, ext, testbench_text):
+    super().__init__(target_dir, components, testbench, ext)
+    self.testbench_text = testbench_text
+  
+  def compile(self):
+    with open(os.path.join(self.target_dir, self.get_testbench_path()), 'w') as f:
+      f.write(self.testbench_text)
+    
+    return super().compile()
+
+  def clean(self):
+    os.remove(os.path.join(self.target_dir, self.get_testbench_path()))
+
+    return super().clean()
