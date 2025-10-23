@@ -4,3 +4,6 @@
 [submodule "flex-logic-schemes/ghdl-embedded/ghdl"]
 	path = flex-logic-schemes/ghdl-embedded/ghdl
 	url = https://github.com/ghdl/ghdl.git
+[submodule "flex-logic-schemes/systemc/systemc"]
+	path = flex-logic-schemes/systemc/systemc
+	url = https://github.com/accellera-official/systemc.git
