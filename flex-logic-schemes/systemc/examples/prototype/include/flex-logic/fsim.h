@@ -74,15 +74,19 @@ SC_MODULE(ftestbench) {
  */
 class fsim_proto {
   private:
-    ftestbench tb;
-    fcircuit circuit;
+    ftestbench *tb;
+    fcircuit &circuit;
     std::vector<sc_logic> cache;
 
+  public:
     int synchronize_tb();
 
     int wait0_tb();
 
     int resume_tb();
+
+    fsim_proto(fcircuit &circuit);
+    ~fsim_proto();
 };
 
 #endif

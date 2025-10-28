@@ -1,4 +1,6 @@
 #include <systemc.h>
+
+#include <flex-logic/fcircuit.h>
 #include <flex-logic/fsim.h>
 
 void ftestbench::process() {
@@ -10,4 +12,13 @@ void ftestbench::process() {
     wait();
     step++;
   }
+}
+
+fsim_proto::fsim_proto(fcircuit &circuit) : circuit(circuit) {
+  tb = new ftestbench("tb");
+  cache = {};
+} 
+
+fsim_proto::~fsim_proto() {
+  delete tb;
 }
