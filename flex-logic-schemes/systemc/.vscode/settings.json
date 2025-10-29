@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "iostream": "cpp",
+    "functional": "cpp",
+    "__functional_base": "cpp"
+  }
+}
