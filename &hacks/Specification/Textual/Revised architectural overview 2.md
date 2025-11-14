@@ -74,7 +74,7 @@ A net has some default transformation of a state that drives it, typically with 
 If a `net_manager` exists, it can associate `int` with solvers. `net<S,T>` has an empty id, while `gate<S,T>`, an inheriting interface, must come with a unique, legible id.
 ## lgate\<S,T>
 Inherits/composes `net`. Comes with a unique, legible id.
-1. `const int name`.
+1. `name string`.
 2. `const solver<S,T> solver`. Overrides net's solver.
 # lstream module
 Route data structure, the actual Route requirements are satisfied in the fsim module.
