@@ -1,0 +1,4 @@
+v 4
+file / "/home/pablo/lang-experiments/cocotb/heartbeat.vhdl" "8776e560f091864b2b2df2c18d07f8ea1a5785f6" "20251014224044.323":
+  entity heartbeat at 1( 0) + 0 on 11;
+  architecture behavior of heartbeat at 8( 113) + 0 on 12;

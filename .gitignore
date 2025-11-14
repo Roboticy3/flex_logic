@@ -1,0 +1,5 @@
+#ghdl auto
+*.gz
+*.o
+*.cf
+work/*
