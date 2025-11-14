@@ -1,4 +1,4 @@
-module lcircuit
+module flex-logic
 
 go 1.25.4
 

@@ -56,3 +56,15 @@ func (set *llabeling[T]) Remove(at int) {
 	var empty T // Zero value of T
 	(*set)[at] = empty
 }
+
+/*
+ Simple labeling scheme: A, B, C, ...
+ Limit to 1-character long labels for now
+*/
+func Label(index int) string {
+	return string(rune('A' + index))
+}
+
+func Index(label string) int {
+	return int([]rune(label)[0] - 'A')
+}
