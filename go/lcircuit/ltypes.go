@@ -1,4 +1,4 @@
-package Lcircuit
+package lcircuit
 
 import (
 	"golang.org/x/exp/constraints"

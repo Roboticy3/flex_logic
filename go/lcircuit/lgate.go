@@ -1,4 +1,4 @@
-package Lcircuit
+package lcircuit
 
 /*
  use a gate's state `[]S` at time `T` to schedule future events
@@ -14,7 +14,7 @@ type Solver[S Lstate, T Ltime] func([]S, T, *levents[S, T])
  `pinout` is the list of pin names for the gate. Helps w/ implementing `Solver`
 */
 type Lgate[S Lstate, T Ltime] struct {
-	name   int64
+	name   string
 	Solver Solver[S, T]
 	pinout []string
 }

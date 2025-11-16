@@ -1,4 +1,4 @@
-package Lcircuit
+package lcircuit
 
 import (
 	"container/heap"

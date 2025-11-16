@@ -1,4 +1,4 @@
-package Lcircuit
+package lcircuit
 
 import (
 	"strconv"
@@ -21,23 +21,23 @@ func (set *Llabeling[T]) Len() int {
 	return len(*set)
 }
 
-func (set *Llabeling[T]) Add(element T, start int64) int64 {
-	if start >= 0 && start < int64(len(*set)) {
+func (set *Llabeling[T]) Add(element T, start int) int {
+	if start >= 0 && start < int(len(*set)) {
 		for i, v := range (*set)[start:] {
 			if v.IsEmpty() {
-				(*set)[i] = element
-				return int64(i)
+				(*set)[start+i] = element
+				return int(start + i)
 			}
 		}
 	}
 
 	*set = append(*set, element)
-	return int64(len(*set) - 1)
+	return int(len(*set) - 1)
 }
 
 // Add an element to the desired position, growing the array if necessary
-func (set *Llabeling[T]) Set(element T, at int64) {
-	if at >= int64(len(*set)) {
+func (set *Llabeling[T]) Set(element T, at int) {
+	if at >= int(len(*set)) {
 		// Grow the slice to accommodate the desired position
 		newSize := at + 1
 		newSlice := make([]T, newSize)
@@ -48,8 +48,8 @@ func (set *Llabeling[T]) Set(element T, at int64) {
 }
 
 // Get returns a pointer to the element at the specified position, or nil if out of bounds or empty
-func (set *Llabeling[T]) Get(at int64) *T {
-	if at < 0 || at >= int64(len(*set)) {
+func (set *Llabeling[T]) Get(at int) *T {
+	if at < 0 || at >= int(len(*set)) {
 		return nil // Out of bounds
 	}
 	if (*set)[at].IsEmpty() {
@@ -58,12 +58,11 @@ func (set *Llabeling[T]) Get(at int64) *T {
 	return &(*set)[at]
 }
 
-// Remove sets the element at the specified position to its "empty" value
-func (set *Llabeling[T]) Remove(at int64) {
-	if at < 0 || at >= int64(len(*set)) {
+// Remove sets the element at the specified position to a value that returns true on empty.IsEmpty()
+func (set *Llabeling[T]) Remove(at int, empty T) {
+	if at < 0 || at >= int(len(*set)) {
 		return // Out of bounds, do nothing
 	}
-	var empty T // Zero value of T
 	(*set)[at] = empty
 }
 
@@ -71,12 +70,13 @@ func (set *Llabeling[T]) Remove(at int64) {
 Simple labeling scheme: A, B, C, ...
 Limit to 1-character long labels for now
 */
-func Label(index int64) string {
-	return strconv.FormatInt(index, 26)
+func Label(index int) string {
+	return strconv.FormatInt(int64(index), 26)
 }
 
-func Index(label string) (int64, error) {
-	return strconv.ParseInt(label, 26, 64)
+func Index(label string) (int, error) {
+	i, err := strconv.ParseInt(label, 26, 64)
+	return int(i), err
 }
 
 // Useful example for testing

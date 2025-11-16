@@ -1,11 +1,13 @@
-package Lcircuit
+package lcircuit
+
+import "fmt"
 
 /*
 a pin on a specific component in a circuit
 */
 type lpin struct {
-	component int64
-	pin       int64
+	component int
+	pin       int
 }
 
 type lnet[S Lstate] struct {
@@ -22,18 +24,19 @@ a component in the circuit has a gate and connections to nets
 
 nets is ordered to match `gtype.pinout`
 */
-type lcomponent[S Lstate, T Ltime] struct {
-	gtype Lgate[S, T]
-	nets  []int64
+type lcomponent struct {
+	tid  int
+	nets []int
 }
 
-func (comp lcomponent[S, T]) IsEmpty() bool {
-	return comp.gtype.name == -1
+func (comp lcomponent) IsEmpty() bool {
+	return comp.tid == -1
 }
 
 type Lcircuit[S Lstate, T Ltime] struct {
 	nets_to_pins  Llabeling[lnet[S]]
-	gates_to_nets Llabeling[lcomponent[S, T]]
+	gates_to_nets Llabeling[lcomponent]
+	gtypes        []Lgate[S, T]
 }
 
 type Lgate_v[S Lstate, T Ltime] struct {
@@ -46,27 +49,40 @@ type Lgate_v[S Lstate, T Ltime] struct {
 
  O(n + m) for n gates and m nets.
 */
-func (gview Lgate_v[S, T]) AddGate(gtype Lgate[S, T]) int64 {
+func (gview Lgate_v[S, T]) AddGate(gname string) int {
 	//With no connections, each pin in a gate will induce a separate net on the
 	//	circuit.
 
+	fmt.Printf("Adding gate %s\n", gname)
+	tid := -1
+	for i, gt := range gview.gtypes {
+		if gt.name == gname {
+			tid = i
+			break
+		}
+	}
+
+	if tid == -1 {
+		return -1 // Gate type not found
+	}
+
 	// Add the gate component
-	gid := gview.gates_to_nets.Add(lcomponent[S, T]{
-		gtype: gtype,
-		nets:  make([]int64, len(gtype.pinout)),
+	gid := gview.gates_to_nets.Add(lcomponent{
+		tid:  tid,
+		nets: make([]int, len(gview.gtypes[tid].pinout)),
 	}, 0)
 
 	// Sweep through nets to add, binding each one to their respective pin
-	nid := int64(0)
 	var zero S
-	for i := range gtype.pinout {
-		nid = gview.nets_to_pins.Add(lnet[S]{
+	for i := range gview.gtypes[tid].pinout {
+		nid := gview.nets_to_pins.Add(lnet[S]{
 			pins: []lpin{{
 				component: gid,
-				pin:       int64(i),
+				pin:       i,
 			}},
 			state: zero,
-		}, nid)
+		}, 0)
+		fmt.Printf("\tadded pin at nid %d\n", nid)
 		gview.gates_to_nets[gid].nets[i] = nid
 	}
 
@@ -74,21 +90,31 @@ func (gview Lgate_v[S, T]) AddGate(gtype Lgate[S, T]) int64 {
 }
 
 /*
- Remove a gate with id `gid` from the circuit
+ Remove a gate with id `gid` from the circuit. Returns the found gate type if
+ successful, or -1
 
  O(p) for p pins on the gate.
 */
-func (gview Lgate_v[S, T]) RemoveGate(gid int64) bool {
+func (gview Lgate_v[S, T]) RemoveGate(gid int) int {
+
 	if gview.gates_to_nets.Get(gid) == nil {
-		return false
+		return -1
 	}
+
+	fmt.Printf("Removing gate id %d\n", gid)
+
+	empty_net := lnet[S]{}
+	empty_component := lcomponent{-1, []int{}}
 
 	for _, nid := range gview.gates_to_nets[gid].nets {
-		gview.nets_to_pins.Remove(nid)
+		fmt.Printf("\tvoiding pin %d\n", nid)
+		gview.nets_to_pins.Remove(nid, empty_net)
 	}
-	gview.gates_to_nets.Remove(gid)
 
-	return true
+	result := gview.gates_to_nets[gid].tid
+	gview.gates_to_nets.Remove(gid, empty_component)
+
+	return result
 }
 
 /*
@@ -99,8 +125,8 @@ func (gview Lgate_v[S, T]) RemoveGate(gid int64) bool {
 
  O(1)
 */
-func (gview Lgate_v[S, T]) GetGate(gid int64) Lgate[S, T] {
-	return gview.gates_to_nets[gid].gtype
+func (gview Lgate_v[S, T]) GetGateName(gid int) string {
+	return gview.gtypes[gview.gates_to_nets[gid].tid].name
 }
 
 /*
@@ -108,11 +134,11 @@ func (gview Lgate_v[S, T]) GetGate(gid int64) Lgate[S, T] {
 
  O(n) for n gates.
 */
-func (gview Lgate_v[S, T]) ListGates() []int64 {
-	var gids []int64
+func (gview Lgate_v[S, T]) ListGates() []int {
+	var gids []int
 	for i := 0; i < gview.gates_to_nets.Len(); i++ {
-		if !gview.gates_to_nets[i].IsEmpty() {
-			gids = append(gids, int64(0))
+		if !(gview.gates_to_nets[i].IsEmpty()) {
+			gids = append(gids, i)
 		}
 	}
 	return gids

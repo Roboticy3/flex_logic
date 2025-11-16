@@ -1,56 +1,9 @@
-package Lcircuit
+package lcircuit
 
 import (
 	"container/heap"
 	"testing"
 )
-
-var names Llabeling[string_component] = Llabeling[string_component]{
-	"AND",
-	"NOT",
-	"LATCH",
-}
-
-var testGates []Lgate[int, int] = []Lgate[int, int]{
-	{
-		name: 0,
-		Solver: func(states []int, time int, events *levents[int, int]) {
-			states[2] = states[0] & states[1]
-			events.Push(levent[int, int]{
-				signal: states[2],
-				time:   time + 1,
-				label:  0,
-			})
-		},
-		pinout: []string{"A", "B", "OUT"},
-	},
-	{
-		name: 1,
-		Solver: func(states []int, time int, events *levents[int, int]) {
-			states[1] = ^states[0]
-			events.Push(levent[int, int]{
-				signal: states[1],
-				time:   time + 1,
-				label:  1,
-			})
-		},
-		pinout: []string{"A", "B", "OUT"},
-	},
-	{
-		name: 2,
-		Solver: func(states []int, time int, events *levents[int, int]) {
-			states[2] |= states[0]
-			states[2] &^= states[1]
-			states[3] = states[2]
-			events.Push(levent[int, int]{
-				signal: states[3],
-				time:   time + 2,
-				label:  2,
-			})
-		},
-		pinout: []string{"SET", "RESET", "INNER", "OUT"},
-	},
-}
 
 func TestANDGate(t *testing.T) {
 	states := []int{1, 1, 0} // Inputs: A=1, B=1, Output=0

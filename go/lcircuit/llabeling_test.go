@@ -1,4 +1,4 @@
-package Lcircuit
+package lcircuit
 
 import "testing"
 
@@ -39,7 +39,7 @@ func TestGet(t *testing.T) {
 func TestRemove(t *testing.T) {
 	var labels Llabeling[string_component]
 	labels.Set("example", 1)
-	labels.Remove(1)
+	labels.Remove(1, "")
 
 	if labels.Get(1) != nil {
 		t.Errorf("Expected nil at position 1 after removal, got %v", labels.Get(1))
