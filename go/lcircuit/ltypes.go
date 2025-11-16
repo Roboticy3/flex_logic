@@ -1,4 +1,4 @@
-package lcircuit
+package Lcircuit
 
 import (
 	"golang.org/x/exp/constraints"
@@ -8,10 +8,10 @@ import (
  interfaces for circuit types
 */
 
-type lstate interface {
+type Lstate interface {
 	any
 }
 
-type ltime interface {
+type Ltime interface {
 	constraints.Ordered
 }

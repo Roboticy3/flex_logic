@@ -1,17 +1,11 @@
-package llabeling
+package Lcircuit
 
 import "testing"
 
-type string_component string
-
-func (s string_component) IsEmpty() bool {
-	return s == ""
-}
-
 func TestAdd(t *testing.T) {
-	var labels llabeling[string_component]
-	labels.Add("example")
-	labels.Add("test")
+	var labels Llabeling[string_component]
+	labels.Add("example", 0)
+	labels.Add("test", 0)
 
 	if len(labels) != 2 {
 		t.Errorf("Expected 2 elements, got %d", len(labels))
@@ -19,7 +13,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	var labels llabeling[string_component]
+	var labels Llabeling[string_component]
 	labels.Set("example", 2)
 
 	if len(labels) != 3 {
@@ -31,7 +25,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	var labels llabeling[string_component]
+	var labels Llabeling[string_component]
 	labels.Set("example", 1)
 
 	if labels.Get(1) == nil || *labels.Get(1) != "example" {
@@ -43,7 +37,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	var labels llabeling[string_component]
+	var labels Llabeling[string_component]
 	labels.Set("example", 1)
 	labels.Remove(1)
 

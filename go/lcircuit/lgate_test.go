@@ -1,14 +1,20 @@
-package lcircuit
+package Lcircuit
 
 import (
 	"container/heap"
 	"testing"
 )
 
-var testGates []lgate[int, int] = []lgate[int, int]{
+var names Llabeling[string_component] = Llabeling[string_component]{
+	"AND",
+	"NOT",
+	"LATCH",
+}
+
+var testGates []Lgate[int, int] = []Lgate[int, int]{
 	{
-		name: "AND",
-		solver: func(states []int, time int, events *levents[int, int]) {
+		name: 0,
+		Solver: func(states []int, time int, events *levents[int, int]) {
 			states[2] = states[0] & states[1]
 			events.Push(levent[int, int]{
 				signal: states[2],
@@ -19,8 +25,8 @@ var testGates []lgate[int, int] = []lgate[int, int]{
 		pinout: []string{"A", "B", "OUT"},
 	},
 	{
-		name: "NOT",
-		solver: func(states []int, time int, events *levents[int, int]) {
+		name: 1,
+		Solver: func(states []int, time int, events *levents[int, int]) {
 			states[1] = ^states[0]
 			events.Push(levent[int, int]{
 				signal: states[1],
@@ -31,8 +37,8 @@ var testGates []lgate[int, int] = []lgate[int, int]{
 		pinout: []string{"A", "B", "OUT"},
 	},
 	{
-		name: "LATCH",
-		solver: func(states []int, time int, events *levents[int, int]) {
+		name: 2,
+		Solver: func(states []int, time int, events *levents[int, int]) {
 			states[2] |= states[0]
 			states[2] &^= states[1]
 			states[3] = states[2]
@@ -51,7 +57,7 @@ func TestANDGate(t *testing.T) {
 	events := &levents[int, int]{}
 	heap.Init(events)
 
-	testGates[0].solver(states, 0, events) // AND gate
+	testGates[0].Solver(states, 0, events) // AND gate
 
 	if states[2] != 1 {
 		t.Errorf("Expected states[2] to be 1, got %d", states[2])
@@ -72,7 +78,7 @@ func TestNOTGate(t *testing.T) {
 	events := &levents[int, int]{}
 	heap.Init(events)
 
-	testGates[1].solver(states, 0, events) // NOT gate
+	testGates[1].Solver(states, 0, events) // NOT gate
 
 	if states[1] != ^1 {
 		t.Errorf("Expected states[1] to be %d, got %d", ^1, states[1])
@@ -93,7 +99,7 @@ func TestLATCHGate(t *testing.T) {
 	events := &levents[int, int]{}
 	heap.Init(events)
 
-	testGates[2].solver(states, 0, events) // LATCH gate
+	testGates[2].Solver(states, 0, events) // LATCH gate
 
 	if states[2] != 1 {
 		t.Errorf("Expected states[2] to be 1, got %d", states[2])

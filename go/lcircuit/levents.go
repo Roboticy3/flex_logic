@@ -1,4 +1,4 @@
-package lcircuit
+package Lcircuit
 
 import (
 	"container/heap"
@@ -7,13 +7,13 @@ import (
 /*
 Event specifying a `signal` at a pin `label` occuring at time `time`
 */
-type levent[S lstate, T ltime] struct {
+type levent[S Lstate, T Ltime] struct {
 	time   T
 	signal S
 	label  int
 }
 
-type levents[S lstate, T ltime] []levent[S, T]
+type levents[S Lstate, T Ltime] []levent[S, T]
 
 var _ heap.Interface = (*levents[any, int])(nil)
 
