@@ -5,7 +5,7 @@ import (
 )
 
 func TestAddGate(t *testing.T) {
-	circuit := &Lcircuit[int, int]{}
+	circuit := &LCircuit[int, int]{}
 	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
@@ -27,7 +27,7 @@ func TestAddGate(t *testing.T) {
 }
 
 func TestAddGateInvalid(t *testing.T) {
-	circuit := &Lcircuit[int, int]{}
+	circuit := &LCircuit[int, int]{}
 	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
@@ -45,7 +45,7 @@ func TestAddGateInvalid(t *testing.T) {
 }
 
 func TestAddMultipleGates(t *testing.T) {
-	circuit := &Lcircuit[int, int]{}
+	circuit := &LCircuit[int, int]{}
 	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
@@ -67,7 +67,7 @@ func TestAddMultipleGates(t *testing.T) {
 }
 
 func TestAddRemoveGates(t *testing.T) {
-	circuit := &Lcircuit[int, int]{}
+	circuit := &LCircuit[int, int]{}
 	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
@@ -91,7 +91,7 @@ func TestAddRemoveGates(t *testing.T) {
 }
 
 func TestFillInRemovedGate(t *testing.T) {
-	circuit := &Lcircuit[int, int]{}
+	circuit := &LCircuit[int, int]{}
 	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 

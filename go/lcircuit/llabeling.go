@@ -82,12 +82,19 @@ func Index(name string) (Label, error) {
 // Example implementaations
 type Label int
 
+// Empty value can be referenced to create empty entries
+const LABEL_EMPTY = -1
+
+// IsEmpty reduces to a comparison with the empty value
 func (i Label) IsEmpty() bool {
-	return i == -1
+	return i == LABEL_EMPTY
 }
 
+// Second example
 type string_label string
 
+const STRING_EMPTY = ""
+
 func (s string_label) IsEmpty() bool {
-	return s == ""
+	return s == STRING_EMPTY
 }
