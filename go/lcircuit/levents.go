@@ -7,30 +7,30 @@ import (
 /*
 Event specifying a `signal` at a pin `label` occuring at time `time`
 */
-type levent[S Lstate, T Ltime] struct {
+type LEvent[S LState, T LTime] struct {
 	time   T
 	signal S
-	label  int
+	label  Label
 }
 
-type levents[S Lstate, T Ltime] []levent[S, T]
+type LEvents[S LState, T LTime] []LEvent[S, T]
 
-var _ heap.Interface = (*levents[any, int])(nil)
+var _ heap.Interface = (*LEvents[any, int])(nil)
 
 // Implement heap interface
 //
 //	See reference implemention at https://pkg.go.dev/container/heap
-func (events levents[S, T]) Len() int { return len(events) }
-func (events levents[S, T]) Less(i, j int) bool {
+func (events LEvents[S, T]) Len() int { return len(events) }
+func (events LEvents[S, T]) Less(i, j int) bool {
 	return events[i].time < events[j].time
 }
-func (events levents[S, T]) Swap(i, j int) {
+func (events LEvents[S, T]) Swap(i, j int) {
 	events[i], events[j] = events[j], events[i]
 }
-func (events *levents[S, T]) Push(x any) {
-	*events = append(*events, x.(levent[S, T]))
+func (events *LEvents[S, T]) Push(x any) {
+	*events = append(*events, x.(LEvent[S, T]))
 }
-func (events *levents[S, T]) Pop() any {
+func (events *LEvents[S, T]) Pop() any {
 	old := *events
 	n := len(old)
 	x := old[n-1]

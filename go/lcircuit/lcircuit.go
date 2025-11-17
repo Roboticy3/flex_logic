@@ -1,21 +1,19 @@
 package lcircuit
 
-import "fmt"
-
 /*
 a pin on a specific component in a circuit
 */
-type lpin struct {
-	component int
-	pin       int
+type LPin struct {
+	component Label
+	pin       Label
 }
 
-type lnet[S Lstate] struct {
-	pins  []lpin
+type LNet[S LState] struct {
+	pins  []LPin
 	state S
 }
 
-func (net lnet[S]) IsEmpty() bool {
+func (net LNet[S]) IsEmpty() bool {
 	return len(net.pins) == 0
 }
 
@@ -24,22 +22,35 @@ a component in the circuit has a gate and connections to nets
 
 nets is ordered to match `gtype.pinout`
 */
-type lcomponent struct {
-	tid  int
-	nets []int
+type LComponent struct {
+	tid  Label
+	nets []Label
 }
 
-func (comp lcomponent) IsEmpty() bool {
+func (comp LComponent) IsEmpty() bool {
 	return comp.tid == -1
 }
 
-type Lcircuit[S Lstate, T Ltime] struct {
-	nets_to_pins  Llabeling[lnet[S]]
-	gates_to_nets Llabeling[lcomponent]
-	gtypes        []Lgate[S, T]
+/*
+ Base type for a circuit
+	`nets_to_pins`:		mapping of net states to arrays of pins
+	`gates_to_nets`:	mapping of gates to nets that drive them/that they drive
+	`gtypes`:					collection of immutable gate types that are allowed for
+		dynamic changes
+	`free_pins`:			mutable pinout of the current circuit associated with net
+		ids
+*/
+type Lcircuit[S LState, T LTime] struct {
+	nets_to_pins  Llabeling[LNet[S]]
+	gates_to_nets Llabeling[LComponent]
+	gtypes        []LGate[S, T]
+	free_pins     Llabeling[Label]
 }
 
-type Lgate_v[S Lstate, T Ltime] struct {
+/*
+View and edit a circuit via gates.
+*/
+type Lgate_v[S LState, T LTime] struct {
 	*Lcircuit[S, T]
 }
 
@@ -49,15 +60,14 @@ type Lgate_v[S Lstate, T Ltime] struct {
 
  O(n + m) for n gates and m nets.
 */
-func (gview Lgate_v[S, T]) AddGate(gname string) int {
+func (gview Lgate_v[S, T]) AddGate(gname string) Label {
 	//With no connections, each pin in a gate will induce a separate net on the
 	//	circuit.
 
-	fmt.Printf("Adding gate %s\n", gname)
-	tid := -1
+	tid := Label(-1)
 	for i, gt := range gview.gtypes {
 		if gt.name == gname {
-			tid = i
+			tid = Label(i)
 			break
 		}
 	}
@@ -67,22 +77,22 @@ func (gview Lgate_v[S, T]) AddGate(gname string) int {
 	}
 
 	// Add the gate component
-	gid := gview.gates_to_nets.Add(lcomponent{
+	gid := gview.gates_to_nets.Add(LComponent{
 		tid:  tid,
-		nets: make([]int, len(gview.gtypes[tid].pinout)),
+		nets: make([]Label, len(gview.gtypes[tid].pinout)),
 	}, 0)
 
 	// Sweep through nets to add, binding each one to their respective pin
+	nid := Label(0)
 	var zero S
 	for i := range gview.gtypes[tid].pinout {
-		nid := gview.nets_to_pins.Add(lnet[S]{
-			pins: []lpin{{
+		nid = gview.nets_to_pins.Add(LNet[S]{
+			pins: []LPin{{
 				component: gid,
-				pin:       i,
+				pin:       Label(i),
 			}},
 			state: zero,
-		}, 0)
-		fmt.Printf("\tadded pin at nid %d\n", nid)
+		}, nid)
 		gview.gates_to_nets[gid].nets[i] = nid
 	}
 
@@ -95,19 +105,16 @@ func (gview Lgate_v[S, T]) AddGate(gname string) int {
 
  O(p) for p pins on the gate.
 */
-func (gview Lgate_v[S, T]) RemoveGate(gid int) int {
+func (gview Lgate_v[S, T]) RemoveGate(gid Label) Label {
 
 	if gview.gates_to_nets.Get(gid) == nil {
 		return -1
 	}
 
-	fmt.Printf("Removing gate id %d\n", gid)
-
-	empty_net := lnet[S]{}
-	empty_component := lcomponent{-1, []int{}}
+	empty_net := LNet[S]{}
+	empty_component := LComponent{-1, []Label{}}
 
 	for _, nid := range gview.gates_to_nets[gid].nets {
-		fmt.Printf("\tvoiding pin %d\n", nid)
 		gview.nets_to_pins.Remove(nid, empty_net)
 	}
 
@@ -125,7 +132,7 @@ func (gview Lgate_v[S, T]) RemoveGate(gid int) int {
 
  O(1)
 */
-func (gview Lgate_v[S, T]) GetGateName(gid int) string {
+func (gview Lgate_v[S, T]) GetGateName(gid Label) string {
 	return gview.gtypes[gview.gates_to_nets[gid].tid].name
 }
 
@@ -134,12 +141,20 @@ func (gview Lgate_v[S, T]) GetGateName(gid int) string {
 
  O(n) for n gates.
 */
-func (gview Lgate_v[S, T]) ListGates() []int {
-	var gids []int
+func (gview Lgate_v[S, T]) ListGates() []Label {
+	var gids []Label
 	for i := 0; i < gview.gates_to_nets.Len(); i++ {
 		if !(gview.gates_to_nets[i].IsEmpty()) {
-			gids = append(gids, i)
+			gids = append(gids, Label(i))
 		}
 	}
 	return gids
+}
+
+type Lpin_v[S LState, T LTime] struct {
+	*Lcircuit[S, T]
+}
+
+func (pview Lpin_v[S, T]) AddPin() {
+	pview.free_pins.Add(-1, 0)
 }

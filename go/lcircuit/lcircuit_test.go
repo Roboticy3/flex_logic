@@ -49,7 +49,7 @@ func TestAddMultipleGates(t *testing.T) {
 	gview := Lgate_v[int, int]{circuit}
 	gview.gtypes = testGates
 
-	results := []int{
+	results := []Label{
 		gview.AddGate("AND"),
 		gview.AddGate("NOT"),
 		gview.AddGate("LATCH"),

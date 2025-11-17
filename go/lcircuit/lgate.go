@@ -3,7 +3,7 @@ package lcircuit
 /*
  use a gate's state `[]S` at time `T` to schedule future events
 */
-type Solver[S Lstate, T Ltime] func([]S, T, *levents[S, T])
+type Solver[S LState, T LTime] func([]S, T, *LEvents[S, T])
 
 /*
  define a type of gate that can be added to a circuit. Each type can have
@@ -13,7 +13,7 @@ type Solver[S Lstate, T Ltime] func([]S, T, *levents[S, T])
  `Solver` is the function that defines the gate's behavior
  `pinout` is the list of pin names for the gate. Helps w/ implementing `Solver`
 */
-type Lgate[S Lstate, T Ltime] struct {
+type LGate[S LState, T LTime] struct {
 	name   string
 	Solver Solver[S, T]
 	pinout []string

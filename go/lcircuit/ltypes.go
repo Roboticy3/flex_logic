@@ -8,10 +8,10 @@ import (
  interfaces for circuit types
 */
 
-type Lstate interface {
+type LState interface {
 	any
 }
 
-type Ltime interface {
+type LTime interface {
 	constraints.Ordered
 }
