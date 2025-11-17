@@ -6,7 +6,7 @@ import (
 
 func TestAddGate(t *testing.T) {
 	circuit := &Lcircuit[int, int]{}
-	gview := Lgate_v[int, int]{circuit}
+	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
 	result := gview.AddGate("AND")
@@ -28,7 +28,7 @@ func TestAddGate(t *testing.T) {
 
 func TestAddGateInvalid(t *testing.T) {
 	circuit := &Lcircuit[int, int]{}
-	gview := Lgate_v[int, int]{circuit}
+	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
 	result := gview.AddGate("OJSDGFDOAFJOEWJF NOT A REAL GATE aoshifdashifuodsoashuifd PLEASE DO NOT NAME GATES LIKE THIS :))))) 🗿")
@@ -46,7 +46,7 @@ func TestAddGateInvalid(t *testing.T) {
 
 func TestAddMultipleGates(t *testing.T) {
 	circuit := &Lcircuit[int, int]{}
-	gview := Lgate_v[int, int]{circuit}
+	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
 	results := []Label{
@@ -68,7 +68,7 @@ func TestAddMultipleGates(t *testing.T) {
 
 func TestAddRemoveGates(t *testing.T) {
 	circuit := &Lcircuit[int, int]{}
-	gview := Lgate_v[int, int]{circuit}
+	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
 	gview.AddGate("AND")
@@ -92,7 +92,7 @@ func TestAddRemoveGates(t *testing.T) {
 
 func TestFillInRemovedGate(t *testing.T) {
 	circuit := &Lcircuit[int, int]{}
-	gview := Lgate_v[int, int]{circuit}
+	gview := LCGateController[int, int]{circuit}
 	gview.gtypes = testGates
 
 	gview.AddGate("AND")

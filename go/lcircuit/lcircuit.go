@@ -50,7 +50,7 @@ type Lcircuit[S LState, T LTime] struct {
 /*
 View and edit a circuit via gates.
 */
-type Lgate_v[S LState, T LTime] struct {
+type LCGateController[S LState, T LTime] struct {
 	*Lcircuit[S, T]
 }
 
@@ -60,7 +60,7 @@ type Lgate_v[S LState, T LTime] struct {
 
  O(n + m) for n gates and m nets.
 */
-func (gview Lgate_v[S, T]) AddGate(gname string) Label {
+func (gview LCGateController[S, T]) AddGate(gname string) Label {
 	//With no connections, each pin in a gate will induce a separate net on the
 	//	circuit.
 
@@ -105,7 +105,7 @@ func (gview Lgate_v[S, T]) AddGate(gname string) Label {
 
  O(p) for p pins on the gate.
 */
-func (gview Lgate_v[S, T]) RemoveGate(gid Label) Label {
+func (gview LCGateController[S, T]) RemoveGate(gid Label) Label {
 
 	if gview.gates_to_nets.Get(gid) == nil {
 		return -1
@@ -132,7 +132,7 @@ func (gview Lgate_v[S, T]) RemoveGate(gid Label) Label {
 
  O(1)
 */
-func (gview Lgate_v[S, T]) GetGateName(gid Label) string {
+func (gview LCGateController[S, T]) GetGateName(gid Label) string {
 	return gview.gtypes[gview.gates_to_nets[gid].tid].name
 }
 
@@ -141,7 +141,7 @@ func (gview Lgate_v[S, T]) GetGateName(gid Label) string {
 
  O(n) for n gates.
 */
-func (gview Lgate_v[S, T]) ListGates() []Label {
+func (gview LCGateController[S, T]) ListGates() []Label {
 	var gids []Label
 	for i := 0; i < gview.gates_to_nets.Len(); i++ {
 		if !(gview.gates_to_nets[i].IsEmpty()) {
@@ -151,10 +151,10 @@ func (gview Lgate_v[S, T]) ListGates() []Label {
 	return gids
 }
 
-type Lpin_v[S LState, T LTime] struct {
+type LCPinController[S LState, T LTime] struct {
 	*Lcircuit[S, T]
 }
 
-func (pview Lpin_v[S, T]) AddPin() {
+func (pview LCPinController[S, T]) AddPin() {
 	pview.free_pins.Add(-1, 0)
 }
