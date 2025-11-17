@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "8e96fbe095b000e2",
@@ -171,17 +172,17 @@
   },
   "active": "eba30b21cfba10aa",
   "lastOpenFiles": [
-    "go/lcircuit/levents_test.go",
+    "go/lcircuit/lgate_test_types.go",
+    "go/lcircuit/lcircuit_test.go",
     "go/lcircuit/ltypes.go",
-    "go/lcircuit/lcircuit.go",
-    "go/llabeling/go.sum",
-    "go/lcircuit/go.sum",
-    "go/lcircuit/go.mod",
-    "go/llabeling/go.mod",
-    "go/go.sum",
-    "go/lcircuit/levents.go",
+    "go/lcircuit/lgate_test.go",
+    "go/lcircuit/llabeling.go",
+    "go/lcircuit/llabeling_test.go",
     "go/lcircuit/lgate.go",
-    "go/lcircuit/lgate",
+    "go/lcircuit/levents_test.go",
+    "go/lcircuit/levents.go",
+    "go/lcircuit/lcircuit.go",
+    "go/lcircuit",
     "&hacks/Specification/Textual/Revised architectural overview.md",
     "&hacks/Specification/Textual/Revised architectural overview 2.md",
     "Lageta TWO/Technical Breakdown.md",

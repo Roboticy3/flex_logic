@@ -25,7 +25,7 @@ Save a load files into a simulator, generating a circuit and routes as needed.
 Each view manages its own association between objects and labels, taking a lot of load off of the circuit and expanding its capability.
 ## lgate_v\<S,T>
 Add, remove, get and list gates by their label. Added and removed gates induce pins to be added and removed, and mapped to the gates such that the simulator can pass relevant nets to each solver.
-1. Add a gate to the circuit under `label`. Can fail if `label` is already in this view. If `label` is not provided, a trivial label is assigned.
+1. Add a gate to the circuit under `label`. Nets are automatically filled in for each pin, then merged as other views connect the gates.
 	1. `int add_gate(lgate<S,T> &g, option<const int> label)`
 2. Remove a gate under `label`.
 	1. `int remove_gate(const int label)`. 
@@ -34,11 +34,11 @@ Add, remove, get and list gates by their label. Added and removed gates induce p
 4. Returns all labels currently assigned to gates.
 	1. `const vector<const int> &list_gates()`. 
 ## lpin_v
-Add, remove, get and list pins by their label. Each pin belongs to at most one gate. If the circuit is only edited through these controllers, each pin will belong to exactly 1 gate and at most 1 net.
-1. Get connections associated with a pin at `label`
-	1. `const vector<const net &> &get_connections(const int label)`
-2. List all pins.
-	1. `const vector<const int> list_pins()`
+Add, remove, and get pins by a gate label and pin label. Pins with an invalid label belong to the circuit. Most gate types cannot allow for pins to be removed.
+1. `add_pin()`
+2. `remove_pin(int label)`
+3. `const lnet &get_net(option<int> gate, int pin)`
+4. `vector<pair<option<const int>, const int>> list_pins()`
 ## lwire_v
 Add, remove, get and list wires by their label and pin endpoints. Wires belonging to the same cluster of pins are consolidated into the same net and the net is assigned an id trivially.
 1. Add a wire to the circuit. The full id of a wire is a combination of a label and two pin labels.
