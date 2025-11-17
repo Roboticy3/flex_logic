@@ -41,10 +41,10 @@ func (comp LComponent) IsEmpty() bool {
 		ids
 */
 type Lcircuit[S LState, T LTime] struct {
-	nets_to_pins  Llabeling[LNet[S]]
-	gates_to_nets Llabeling[LComponent]
+	nets_to_pins  LLabeling[LNet[S]]
+	gates_to_nets LLabeling[LComponent]
 	gtypes        []LGate[S, T]
-	free_pins     Llabeling[Label]
+	free_pins     LLabeling[Label]
 }
 
 /*
@@ -92,7 +92,7 @@ func (gview LCGateController[S, T]) AddGate(gname string) Label {
 				pin:       Label(i),
 			}},
 			state: zero,
-		}, nid)
+		}, int(nid))
 		gview.gates_to_nets[gid].nets[i] = nid
 	}
 
@@ -156,5 +156,16 @@ type LCPinController[S LState, T LTime] struct {
 }
 
 func (pview LCPinController[S, T]) AddPin() {
-	pview.free_pins.Add(-1, 0)
+
+	//Add a blank net pointing past the end of the array
+	var zero S
+	nid := pview.nets_to_pins.Add(LNet[S]{
+		pins: []LPin{{
+			component: -1,
+			pin:       Label(len(pview.free_pins)),
+		}},
+		state: zero,
+	}, 0)
+
+	pview.free_pins.Add(nid, 0)
 }

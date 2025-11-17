@@ -15,18 +15,18 @@ type optional interface {
 /*
 Non-unique label mapping that packs elements contiguously
 */
-type Llabeling[T optional] []T
+type LLabeling[T optional] []T
 
-func (set *Llabeling[T]) Len() int {
+func (set *LLabeling[T]) Len() int {
 	return len(*set)
 }
 
-func (set *Llabeling[T]) Add(element T, start Label) Label {
-	if start >= 0 && start < Label(len(*set)) {
+func (set *LLabeling[T]) Add(element T, start int) Label {
+	if start >= 0 && start < len(*set) {
 		for i, v := range (*set)[start:] {
 			if v.IsEmpty() {
-				(*set)[int(start)+i] = element
-				return Label(int(start) + i)
+				(*set)[start+i] = element
+				return Label(start + i)
 			}
 		}
 	}
@@ -36,7 +36,7 @@ func (set *Llabeling[T]) Add(element T, start Label) Label {
 }
 
 // Add an element to the desired position, growing the array if necessary
-func (set *Llabeling[T]) Set(element T, at Label) {
+func (set *LLabeling[T]) Set(element T, at Label) {
 	if at >= Label(len(*set)) {
 		// Grow the slice to accommodate the desired position
 		newSize := at + 1
@@ -48,7 +48,7 @@ func (set *Llabeling[T]) Set(element T, at Label) {
 }
 
 // Get returns a poLabeler to the element at the specified position, or nil if out of bounds or empty
-func (set *Llabeling[T]) Get(at Label) *T {
+func (set *LLabeling[T]) Get(at Label) *T {
 	if at < 0 || at >= Label(len(*set)) {
 		return nil // Out of bounds
 	}
@@ -59,7 +59,7 @@ func (set *Llabeling[T]) Get(at Label) *T {
 }
 
 // Remove sets the element at the specified position to a value that returns true on empty.IsEmpty()
-func (set *Llabeling[T]) Remove(at Label, empty T) {
+func (set *LLabeling[T]) Remove(at Label, empty T) {
 	if at < 0 || at >= Label(len(*set)) {
 		return // Out of bounds, do nothing
 	}
