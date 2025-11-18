@@ -1,50 +1,62 @@
 package lcircuit
 
 /*
-a pin on a specific component in a circuit
+	a pin on a specific component in a circuit
+
+	`valid` will be false by default, making new pins (eg `var zero LPin[S,T]`)
+	is an easy way to add empty entries.
 */
-type LPin struct {
-	component Label
-	pin       int
+type LPin[S LState, T LTime] struct {
+	nets  []Label
+	valid bool
 }
 
-type LNet[S LState] struct {
-	pins  []LPin
+func (pin LPin[S, T]) IsEmpty() bool {
+	return !pin.valid
+}
+
+type LNet[S LState, T LTime] struct {
+	pins  []Label
+	tid   Label
 	state S
 }
 
-func (net LNet[S]) IsEmpty() bool {
+func (net LNet[S, T]) IsEmpty() bool {
 	return len(net.pins) == 0
 }
 
 /*
-a component in the circuit has a gate and connections to nets
-
-nets is ordered to match `gtype.pinout`
-*/
-type LComponent struct {
-	tid  Label
-	nets []Label
-}
-
-func (comp LComponent) IsEmpty() bool {
-	return comp.tid == LABEL_EMPTY
-}
-
-/*
  Base type for a circuit
-	`nets_to_pins`:		mapping of net states to arrays of pins
-	`gates_to_nets`:	mapping of gates to nets that drive them/that they drive
-	`gtypes`:					collection of immutable gate types that are allowed for
-		dynamic changes
-	`free_pins`:			mutable pinout of the current circuit associated with net
-		ids
+	`netlist`	labeling over nets on the circuit
+	`pinlist` labeling over pins on the circuit
+
+	Each pin belongs to n nets
+	Each net sees p pins and has an optional gate type.
 */
 type LCircuit[S LState, T LTime] struct {
-	nets_to_pins  LLabeling[LNet[S]]
-	gates_to_nets LLabeling[LComponent]
-	gtypes        []LGate[S, T]
-	free_pins     LLabeling[Label]
+	netlist   LLabeling[LNet[S, T]]
+	pinlist   LLabeling[LPin[S, T]]
+	gatetypes LLabeling[LGate[S, T]]
+}
+
+type LCGateTypeController[S LState, T LTime] struct {
+	*LCircuit[S, T]
+}
+
+func (gtc LCGateTypeController[S, T]) FindTypeName(gname string) Label {
+	tid := LABEL_EMPTY
+	for i := range gtc.gatetypes {
+		if gtc.gatetypes[i].name == gname {
+			tid = Label(i)
+			break
+		}
+	}
+
+	if tid == LABEL_EMPTY {
+		return LABEL_EMPTY
+	}
+
+	return tid
 }
 
 /*
@@ -55,182 +67,120 @@ type LCGateController[S LState, T LTime] struct {
 }
 
 /*
- Add a gate of type `gtype` to the circuit with no connections, returning the
- gate id
+	Adding a gate of type `gname` induces pins and nets onto the circuit.
 
- O(n + m) for n gates and m nets.
+	O(t + p) for t types and p pins.
 */
-func (gview LCGateController[S, T]) AddGate(gname string) Label {
-	//With no connections, each pin in a gate will induce a separate net on the
-	//	circuit.
+func (gc LCGateController[S, T]) AddGate(gname string) Label {
 
-	tid := Label(LABEL_EMPTY)
-	for i, gt := range gview.gtypes {
-		if gt.name == gname {
-			tid = Label(i)
-			break
-		}
-	}
-
+	//Find the type label of the gate
+	tid := LCGateTypeController[S, T](gc).FindTypeName(gname)
 	if tid == LABEL_EMPTY {
-		return LABEL_EMPTY // Gate type not found
-	}
-
-	// Add the gate component
-	gid := gview.gates_to_nets.Add(LComponent{
-		tid:  tid,
-		nets: make([]Label, len(gview.gtypes[tid].pinout)),
-	}, 0)
-
-	// Sweep through nets to add, binding each one to their respective pin
-	nid := Label(0)
-	var zero S
-	for i := range gview.gtypes[tid].pinout {
-		nid = gview.nets_to_pins.Add(LNet[S]{
-			pins: []LPin{{
-				component: gid,
-				pin:       i,
-			}},
-			state: zero,
-		}, int(nid))
-		gview.gates_to_nets[gid].nets[i] = nid
-	}
-
-	return gid
-}
-
-/*
- Remove a gate with id `gid` from the circuit. Returns the found gate type if
- successful, or LABEL_EMPTY
-
- O(pq) for p pins on the gate with q expected connections
-*/
-func (gview LCGateController[S, T]) RemoveGate(gid Label) Label {
-
-	component := gview.gates_to_nets.Get(gid)
-	if component == nil {
 		return LABEL_EMPTY
 	}
 
-	//detach each pin of the gate from its network
-	for i := range component.nets {
-		LCNetView[S, T](gview).Detach(LPin{gid, i})
+	//Add in the net first, since its easier to fill in the pins on one net
+	//	than to fill in the net on many pins
+	//Might change memory management later to take slices out of a flat array here
+	pincount := len(gc.gatetypes[tid].pinout)
+	pins := make([]Label, pincount)
+	var zero S
+	nid := gc.netlist.Add(LNet[S, T]{
+		pins,
+		tid,
+		zero,
+	}, 0)
+
+	pid := 0
+	for i := range pincount {
+		pins[i] = gc.pinlist.Add(LPin[S, T]{[]Label{nid}, true}, pid)
 	}
 
-	//then remove it
-	empty_component := LComponent{LABEL_EMPTY, []Label{}}
-	gview.gates_to_nets.Remove(gid, empty_component)
-
-	result := component.tid
-	return result
+	return nid
 }
 
-/*
- Get the type of the gate with id `gid`
+func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 
- If no gate is found, a gate type passing IsEmpty is returned.
- Breaks if gid is out of range.
-
- O(1)
-*/
-func (gview LCGateController[S, T]) GetGateName(gid Label) string {
-	component := gview.gates_to_nets.Get(gid)
-	if component == nil {
-		return "?Missing?"
+	//Find a gate. If the net id belongs to a wire cluster or is empty, ignore it
+	p_net := gc.netlist.Get(gid)
+	if p_net.tid == -1 || p_net.IsEmpty() {
+		return false
 	}
-	return gview.gtypes[component.tid].name
+
+	//Otherwise, we want to remove all associated pins, then the net itself from
+	//	their respective labelings.
+	//Removing a pin may also have effects on other nets. Use LCPinController
+	//	to handle this.
+	//Removing the last pin will fully disconnect this net and remove it auto-
+	//	matically, so we shouldn't have to worry about it  after this.
+	for _, pid := range p_net.pins {
+		LCPinController[S, T](gc).RemovePin(pid)
+	}
+
+	return true
 }
 
-/*
- List gates currently in the circuit by `gid`
-
- O(n) for n gates.
-*/
-func (gview LCGateController[S, T]) ListGates() []Label {
-	var gids []Label
-	for i := 0; i < gview.gates_to_nets.Len(); i++ {
-		if !(gview.gates_to_nets[i].IsEmpty()) {
-			gids = append(gids, Label(i))
+func (gc LCGateController[S, T]) ListGateIds() []Label {
+	result := []Label{}
+	for nid, net := range gc.netlist {
+		if !net.IsEmpty() && net.tid != LABEL_EMPTY {
+			result = append(result, Label(nid))
 		}
 	}
-	return gids
+
+	return result
 }
 
 type LCPinController[S LState, T LTime] struct {
 	*LCircuit[S, T]
 }
 
-/*
- Add 1 pin to the circuit and induce a net
+func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
 
- O(1)
-*/
-func (pview LCPinController[S, T]) AddFreePin() {
+	p_pin := pc.pinlist.Get(pid)
+	if p_pin.IsEmpty() {
+		return false
+	}
 
-	//Add a blank net pointing past the end of the array
-	var zero S
-	nid := pview.nets_to_pins.Add(LNet[S]{
-		pins: []LPin{{
-			component: LABEL_EMPTY,
-			pin:       len(pview.free_pins),
-		}},
-		state: zero,
-	}, 0)
+	//find this pin in the connected nets and remove it
+	for _, nid := range p_pin.nets {
+		LCNetController[S, T](pc).Detach(nid, pid)
+	}
 
-	//Fill in the pin being referenced by the net we just made
-	pview.free_pins.Add(nid, 0)
+	var zero LPin[S, T]
+	pc.pinlist.Remove(pid, zero)
+
+	return true
 }
 
-/*
- Remove 1 pin and disconnect it from its net
-
- O(q) for q expected connections from `pid`
-*/
-func (pview LCPinController[S, T]) RemoveFreePin(pid Label) {
-
-	//detach the pin from its network
-	LCNetView[S, T](pview).Detach(LPin{
-		component: LABEL_EMPTY,
-		pin:       int(pid),
-	})
-
-	//then remove it
-	pview.free_pins.Remove(pid, LABEL_EMPTY)
-}
-
-/*
- Add and remove connections to existing nets
- Since nets should always have at least 1 pin, and adding pins induces nets onto
-	the circuit, adding nets is not meaningful. Only merging sets of pins or
-	splitting a net label
-*/
-type LCNetView[S LState, T LTime] struct {
+type LCNetController[S LState, T LTime] struct {
 	*LCircuit[S, T]
 }
 
-func (nview LCNetView[S, T]) Detach(pin LPin) {
-	nid := nview.gates_to_nets[pin.component].nets[pin.pin]
+/*
+	Detach net `nid` from pin `pid`
 
-	if nid.IsEmpty() {
-		return
+	If detaching this pin would leave net `nid` with zero connections, the net
+		is removed from the circuit.
+*/
+func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
+
+	p_net := nc.netlist.Get(nid)
+
+	if len(p_net.pins) == 1 && p_net.pins[0] == pid {
+		var zero LNet[S, T]
+		nc.netlist.Remove(nid, zero)
+		return true
 	}
 
-	//swap out the pin to the end and shrink the slice header
-	pins := nview.nets_to_pins[nid].pins
-	for i, p := range pins {
-		if p == pin {
-			pins[i] = pins[len(pins)-1]
-			pins = pins[:len(pins)-1]
+	for i, pid2 := range p_net.pins {
+		if pid == pid2 {
+			//lazy remove (O(1))
+			p_net.pins[i] = p_net.pins[len(p_net.pins)-1]
+			p_net.pins = p_net.pins[:len(p_net.pins)-1]
+			return true
 		}
 	}
 
-	//if the netlist is emptied, clear it from the labeling.
-	var zero LNet[S]
-	if len(pins) == 0 {
-		nview.nets_to_pins.Remove(nid, zero)
-	} else {
-		//otherwise copy in the updated slice header
-		nview.nets_to_pins[nid].pins = pins
-	}
-
+	return false
 }

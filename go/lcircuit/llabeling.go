@@ -66,6 +66,17 @@ func (set *LLabeling[T]) Remove(at Label, empty T) {
 	(*set)[at] = empty
 }
 
+func (set *LLabeling[T]) Compress() []T {
+	result := []T{}
+	for _, item := range *set {
+		if !item.IsEmpty() {
+			result = append(result, item)
+		}
+	}
+
+	return result
+}
+
 /*
 Simple labeling scheme: A, B, C, ...
 Limit to 1-character long labels for now
@@ -83,7 +94,7 @@ func Index(name string) (Label, error) {
 type Label int
 
 // Empty value can be referenced to create empty entries
-const LABEL_EMPTY = -1
+const LABEL_EMPTY = Label(-1)
 
 // IsEmpty reduces to a comparison with the empty value
 func (i Label) IsEmpty() bool {

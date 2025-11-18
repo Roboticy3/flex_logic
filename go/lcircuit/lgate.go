@@ -18,3 +18,7 @@ type LGate[S LState, T LTime] struct {
 	Solver Solver[S, T]
 	pinout []string
 }
+
+func (gtype LGate[S, T]) IsEmpty() bool {
+	return gtype.name == STRING_EMPTY
+}
