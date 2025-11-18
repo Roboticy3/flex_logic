@@ -99,6 +99,11 @@ func (gc LCGateController[S, T]) AddGate(gname string) Label {
 	return nid
 }
 
+/*
+	Remove the gate at `gid`. Returns true if the gate existed and false otherwise
+
+	O(pqu) for p pins, q, u average connections on nets, pins.
+*/
 func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 
 	//Find a gate. If the net id belongs to a wire cluster or is empty, ignore it
@@ -120,6 +125,11 @@ func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 	return true
 }
 
+/*
+	List valid gate ids
+
+	O(n) for n gates.
+*/
 func (gc LCGateController[S, T]) ListGateIds() []Label {
 	result := []Label{}
 	for nid, net := range gc.netlist {
@@ -135,10 +145,55 @@ type LCPinController[S LState, T LTime] struct {
 	*LCircuit[S, T]
 }
 
+/*
+	Add a pin to the circuit.
+
+	If the provided `nid` is `LABEL_EMPTY`, the pin is added with no associated
+	net
+
+	If `nid` is a valid label, but doesn't correspond to a valid net, the function
+	fails and returns `LABEL_EMPTY`
+
+	If `nid` corresponds to a valid net, the pin is added to the circuit and
+	connected to the net.
+
+	O(q) for q average connections on a net.
+*/
+func (pc LCPinController[S, T]) AddPin(nid Label) Label {
+
+	if nid == LABEL_EMPTY {
+		return pc.pinlist.Add(LPin[S, T]{[]Label{}, true}, 0)
+	}
+
+	p_net := pc.netlist.Get(nid)
+	if p_net == nil {
+		return LABEL_EMPTY
+	}
+
+	result := pc.pinlist.Add(LPin[S, T]{[]Label{nid}, true}, 0)
+	for _, pid := range p_net.pins {
+		if pid == result {
+			return result
+		}
+	}
+	p_net.pins = append(p_net.pins, result)
+	return result
+}
+
+/*
+	Remove a pin at `pid` from the circuit. Returns true if the pin existed and
+	false otherwise.
+
+	The pin is disconnected from any associated nets. If these nets become fully
+	disconnected, they are removed.
+
+	O(qu) for q, u average connections on nets, pins. In a standard digital logic
+	circuit, pins should not exceed two nets- one component and one wire.
+*/
 func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
 
 	p_pin := pc.pinlist.Get(pid)
-	if p_pin.IsEmpty() {
+	if p_pin == nil {
 		return false
 	}
 
@@ -161,7 +216,9 @@ type LCNetController[S LState, T LTime] struct {
 	Detach net `nid` from pin `pid`
 
 	If detaching this pin would leave net `nid` with zero connections, the net
-		is removed from the circuit.
+	is removed from the circuit.
+
+	O(q) for q average connections on a net.
 */
 func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 
