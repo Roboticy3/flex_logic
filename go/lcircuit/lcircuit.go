@@ -1,7 +1,6 @@
 package lcircuit
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -158,7 +157,8 @@ func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 	//	to handle this.
 	//Removing the last pin will fully disconnect this net and remove it auto-
 	//	matically, so we shouldn't have to worry about it  after this.
-	for _, pid := range p_net.pins {
+	for len(p_net.pins) > 0 {
+		pid := p_net.pins[0]
 		LCPinController[S, T](gc).RemovePin(pid)
 	}
 
@@ -230,7 +230,7 @@ False otherwise.
 The pin is disconnected from any associated nets. If these nets become fully
 disconnected, they are removed.
 
-O(u log q) for q, u average connections on nets, pins. In a standard digital logic
+O(uq + u log q) for q, u average connections on nets, pins. In a standard digital logic
 circuit, pins should not exceed two nets- one component and one wire.
 */
 func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
@@ -241,7 +241,6 @@ func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
 	}
 
 	//find this pin in the connected nets and remove it
-	fmt.Println("Detaching pin ", pid, " from nets ", p_pin.nets)
 	for _, nid := range p_pin.nets {
 		LCNetController[S, T](pc).Detach(nid, pid)
 	}
@@ -272,7 +271,7 @@ Detach net `nid` from pin `pid`
 If detaching this pin would leave net `nid` with zero connections, the net
 is removed from the circuit.
 
-O(log q) for q average connections on a net.
+O(q + log q) for q average connections on a net.
 */
 func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 
@@ -290,9 +289,8 @@ func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 		return false
 	}
 
-	//lazy remove (O(1))
-	p_net.pins[i] = p_net.pins[len(p_net.pins)-1]
-	p_net.pins = p_net.pins[:len(p_net.pins)-1]
+	//lazy remove (O(q))
+	p_net.pins = append(p_net.pins[:i], p_net.pins[i+1:]...)
 
 	return true
 }
@@ -322,6 +320,7 @@ func (nc LCNetController[S, T]) Merge(nids []Label) {
 		if p_net != nil {
 			target = nid
 			target_i = i
+			break
 		}
 	}
 
