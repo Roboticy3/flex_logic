@@ -1,6 +1,7 @@
 package lcircuit
 
 import (
+	"slices"
 	"sort"
 )
 
@@ -230,7 +231,7 @@ False otherwise.
 The pin is disconnected from any associated nets. If these nets become fully
 disconnected, they are removed.
 
-O(uq + u log q) for q, u average connections on nets, pins. In a standard digital logic
+O(uq) for q, u average connections on nets, pins. In a standard digital logic
 circuit, pins should not exceed two nets- one component and one wire.
 */
 func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
@@ -271,26 +272,22 @@ Detach net `nid` from pin `pid`
 If detaching this pin would leave net `nid` with zero connections, the net
 is removed from the circuit.
 
-O(q + log q) for q average connections on a net.
+O(q) for q average connections on a net.
 */
 func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 
-	p_net := nc.netlist.Get(nid)
-
-	if len(p_net.pins) == 1 && p_net.pins[0] == pid {
-		var zero LNet[S, T]
-		nc.netlist.Remove(nid, zero)
-		return true
-	}
-
-	//binary search O(log q)
-	i := sort.Search(len(p_net.pins), func(i int) bool { return p_net.pins[i] >= pid })
-	if i < 0 || i >= len(p_net.pins) {
+	p_pin, p_net := nc.pinlist.Get(pid), nc.netlist.Get(nid)
+	if p_pin == nil || p_net == nil {
 		return false
 	}
 
-	//lazy remove (O(q))
-	p_net.pins = append(p_net.pins[:i], p_net.pins[i+1:]...)
+	//remove nid from sorted array
+	i := sort.Search(len(p_pin.nets), func(k int) bool { return p_pin.nets[k] >= nid })
+	p_pin.nets = append(p_pin.nets[0:i], p_pin.nets[i+1:]...)
+
+	//remove pid from sorted array
+	j := sort.Search(len(p_net.pins), func(k int) bool { return p_net.pins[k] >= pid })
+	p_net.pins = append(p_net.pins[0:j], p_net.pins[j+1:]...)
 
 	return true
 }
@@ -299,10 +296,24 @@ func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 Attach net `nid` to pin `pid`. If either do not exist, or the connection
 already exists, return false.
 
-O(log q) for q average connections on a net.
+O(q) for q average connections on a net.
 */
 func (nc LCNetController[S, T]) Attach(nid Label, pid Label) bool {
-	return false
+
+	p_pin, p_net := nc.pinlist.Get(pid), nc.netlist.Get(nid)
+	if p_pin == nil || p_net == nil {
+		return false
+	}
+
+	//insert nid into sorted array
+	i := sort.Search(len(p_pin.nets), func(k int) bool { return p_pin.nets[k] >= nid })
+	p_pin.nets = slices.Insert(p_pin.nets, i, nid)
+
+	//insert pid into sorted array
+	j := sort.Search(len(p_net.pins), func(k int) bool { return p_net.pins[k] >= pid })
+	p_net.pins = slices.Insert(p_net.pins, j, pid)
+
+	return true
 }
 
 /*
@@ -367,7 +378,7 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 		nc.netlist[nid1] = new_target
 	} else {
 		//Otherwise, merge the pin arrays, use target for the tid and state
-		//Since net pins are sorted, the merge is linear with interlacing:
+		//Since net pins are sorted, the merge is O(q) with this:
 		pins := make([]Label, len(p_target.pins)+len(p_source.pins))
 		i, j := 0, 0
 		for p := range pins {
@@ -413,4 +424,42 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 	nc.netlist.Remove(nid2, LNet[S, T]{})
 
 	return true
+}
+
+/*
+Add a net to the circuit. Copies the input into the circuit, sorting and
+validating pins.
+
+If no valid pins are on net.pins, the function fails and returns LABEL_EMPTY
+
+O(q^2) for q average connections
+*/
+func (nc LCNetController[S, T]) Add(net LNet[S, T]) Label {
+
+	//new_net to copy net into. Helps with checking pins
+	new_net := LNet[S, T]{
+		pins:  []Label{},
+		tid:   net.tid,
+		state: net.state,
+	}
+	nid := nc.netlist.Add(new_net, 0)
+
+	//attempt to attach the copy to all requested pins.
+	//if no valid attachments are found, valid remains false
+	valid := false
+	for _, pid := range net.pins {
+		if nc.Attach(nid, pid) {
+			valid = true
+		}
+	}
+
+	//if no valid pins were found, undo the addition and return LABEL_EMPTY
+	//	to indicate failure.
+	if !valid {
+		var zero LNet[S, T]
+		nc.netlist.Remove(nid, zero)
+		return LABEL_EMPTY
+	}
+
+	return nid
 }
