@@ -11,7 +11,7 @@ a pin on a specific component in a circuit
 `valid` will be false by default, making new pins (eg `var zero LPin[S,T]`)
 is an easy way to add empty entries.
 
-`nets` will remain sorted for easy search.
+`nets` will remain sorted and unique for easy search.
 */
 type LPin[S LState, T LTime] struct {
 	nets  []Label
@@ -38,7 +38,7 @@ func (pin LPin[S, T]) Swap(i, j int) {
 A net between circuit pins. Drives connected nets with its state and processes
 events with its `tid`.
 
-`pins` will remain sorted for easy merging.
+`pins` will remain sorted and unique for easy search.
 */
 type LNet[S LState, T LTime] struct {
 	pins  []Label
@@ -66,6 +66,7 @@ func (net LNet[S, T]) Swap(i, j int) {
 	 Base type for a circuit
 		`netlist`	labeling over nets on the circuit
 		`pinlist` labeling over pins on the circuit
+		`gatetypes` labeling over the `tid` field of each net in `netlist`
 
 		Each pin belongs to n nets
 		Each net sees p pins and has an optional gate type.
@@ -281,7 +282,7 @@ func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 		return false
 	}
 
-	//remove nid from sorted array
+	//remove nid from sorted array. Empty arrays are considered empty entries
 	i := sort.Search(len(p_pin.nets), func(k int) bool { return p_pin.nets[k] >= nid })
 	p_pin.nets = append(p_pin.nets[0:i], p_pin.nets[i+1:]...)
 
@@ -320,9 +321,11 @@ func (nc LCNetController[S, T]) Attach(nid Label, pid Label) bool {
 Merge nets at `nids` together. The first valid element of `nids` is the target
 net for the merge, so its `state` and `tid` will dominate.
 
+Return the merge target, or `LABEL_EMPTY` if no target was found
+
 O(nq log q) for n valid elements of `nids`, q average connections on a net.
 */
-func (nc LCNetController[S, T]) Merge(nids []Label) {
+func (nc LCNetController[S, T]) Merge(nids []Label) Label {
 
 	target := LABEL_EMPTY
 	target_i := -1 //store the index where the target was found for slicing
@@ -336,11 +339,11 @@ func (nc LCNetController[S, T]) Merge(nids []Label) {
 	}
 
 	if target == LABEL_EMPTY {
-		return
+		return LABEL_EMPTY
 	}
 
 	if target_i == len(nids)-1 {
-		return
+		return LABEL_EMPTY
 	}
 
 	nids = nids[target_i+1:]
@@ -349,6 +352,8 @@ func (nc LCNetController[S, T]) Merge(nids []Label) {
 	for _, nid := range nids {
 		nc.MergeTwo(target, nid)
 	}
+
+	return target
 }
 
 /*
@@ -462,4 +467,117 @@ func (nc LCNetController[S, T]) Add(net LNet[S, T]) Label {
 	}
 
 	return nid
+}
+
+/*
+Remove a net from the circuit. Disconnects all pins in net.pins from each other.
+
+net.pins is searched in order. If any two pins are found to be connected by a
+net `nid`, `nid` is detached from the later pin.
+
+If `empty_only` is true, only nets of type `LABEL_EMPTY` will be detached.
+
+# Returns true if nets were disconnected from each other, and false otherwise
+
+O(nq^2) for n pins with q average connections. Only happens when the set of pins
+is maximally connected/complete.
+*/
+func (nc LCNetController[S, T]) Remove(net LNet[S, T], empty_only bool) bool {
+	//build neighborhoods as sets for faster lookup
+	neighborhood := map[Label]bool{}
+	result := false
+
+	for _, pid := range net.pins {
+		p_pin := nc.pinlist.Get(pid)
+		if p_pin == nil {
+			continue
+		}
+
+		//enforce that the nid is detached.
+		for _, nid := range p_pin.nets {
+			p_net := nc.netlist.Get(nid)
+			if p_net == nil {
+				continue
+			}
+
+			_, ok := neighborhood[nid]
+			if ok {
+				//split pid from nid
+				nc.Detach(nid, pid)
+				result = true
+			} else if (!empty_only) || p_net.tid == LABEL_EMPTY {
+				//otherwise, track the nid for later
+				neighborhood[nid] = true
+			}
+		}
+	}
+
+	return result
+}
+
+/*
+Wire 2 valid tid'd nets with a new net of tid `LABEL_EMPTY`. If a net of type
+`LABEL_EMPTY` already exists on either pin, merge all such nets together.
+
+Returns the label of the created net, or `LABEL_EMPTY` if either pin was invalid
+
+O(q^2 log q) for q average connections
+*/
+func (nc LCNetController[S, T]) AddWire(pid1 Label, pid2 Label) Label {
+
+	//check for nets to merge into on the pins, validating that the pins exist
+	//in the process
+	p_pins := [](*LPin[S, T]){nc.pinlist.Get(pid1), nc.pinlist.Get(pid2)}
+	if p_pins[0] == nil || p_pins[1] == nil {
+		return LABEL_EMPTY
+	}
+
+	//O(q)
+	merges := []Label{}
+	for _, p_pin := range p_pins {
+		for _, nid := range p_pin.nets {
+			p_net := nc.netlist.Get(nid)
+			if p_net == nil {
+				continue
+			}
+
+			if p_net.tid != -1 {
+				merges = append(merges, nid)
+			}
+		}
+	}
+
+	//Add the new net
+	var zero S
+	wire := LNet[S, T]{[]Label{pid1, pid2}, LABEL_EMPTY, zero}
+	//O(q^2)
+	nid := nc.Add(wire)
+
+	if nid == LABEL_EMPTY {
+		return LABEL_EMPTY //should never happen if pin check passed
+	}
+
+	//If merges were found, merge the discovered nets together and return the
+	//merge target
+	//O(nq log q) and n is approximately q
+	if len(merges) > 0 {
+		merges = append(merges, nid)
+
+		return nc.Merge(merges)
+	}
+
+	//Otherwise, just return the id of the added net.
+	return nid
+}
+
+/*
+Disconnect `pid1` from `pid2` along nets of type `LABEL_EMPTY` (won't
+disconnect two pins from a gate).
+
+O(q^2)
+*/
+func (nc LCNetController[S, T]) RemoveWire(pid1 Label, pid2 Label) bool {
+	var wire LNet[S, T]
+	wire.pins = []Label{pid1, pid2}
+	return nc.Remove(wire, true)
 }
