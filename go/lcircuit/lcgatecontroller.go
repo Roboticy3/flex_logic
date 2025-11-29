@@ -15,7 +15,7 @@ O(t + p) for t types and p pins.
 func (gc LCGateController[S, T]) AddGate(gname string) Label {
 
 	//Find the type label of the gate
-	tid := LCGateTypeController[S, T](gc).FindTypeName(gname)
+	tid := gc.FindTypeName(gname)
 	if tid == LABEL_EMPTY {
 		return LABEL_EMPTY
 	}
@@ -23,7 +23,7 @@ func (gc LCGateController[S, T]) AddGate(gname string) Label {
 	//Add in the net first, since its easier to fill in the pins on one net
 	//	than to fill in the net on many pins
 	//Might change memory management later to take slices out of a flat array here
-	pincount := len(gc.gatetypes[tid].pinout)
+	pincount := len(gc.gatetypes[tid].Pinout)
 	pins := make([]Label, pincount)
 	var zero S
 	nid := gc.netlist.Add(LNet[S, T]{
@@ -52,7 +52,7 @@ func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 
 	//Find a gate. If the net id belongs to a wire cluster or is empty, ignore it
 	p_net := gc.netlist.Get(gid)
-	if p_net.tid == -1 || p_net.IsEmpty() {
+	if p_net.Tid == -1 || p_net.IsEmpty() {
 		return false
 	}
 
@@ -62,8 +62,8 @@ func (gc LCGateController[S, T]) RemoveGate(gid Label) bool {
 	//	to handle this.
 	//Removing the last pin will fully disconnect this net and remove it auto-
 	//	matically, so we shouldn't have to worry about it  after this.
-	for len(p_net.pins) > 0 {
-		pid := p_net.pins[0]
+	for len(p_net.Pins) > 0 {
+		pid := p_net.Pins[0]
 		LCPinController[S, T](gc).RemovePin(pid)
 	}
 
@@ -78,7 +78,7 @@ O(n) for n gates.
 func (gc LCGateController[S, T]) ListGateIds() []Label {
 	result := []Label{}
 	for nid, net := range gc.netlist {
-		if !net.IsEmpty() && net.tid != LABEL_EMPTY {
+		if !net.IsEmpty() && net.Tid != LABEL_EMPTY {
 			result = append(result, Label(nid))
 		}
 	}

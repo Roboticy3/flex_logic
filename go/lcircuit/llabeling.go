@@ -102,10 +102,10 @@ func (i Label) IsEmpty() bool {
 }
 
 // Second example
-type string_label string
+type StringLabel string
 
 const STRING_EMPTY = ""
 
-func (s string_label) IsEmpty() bool {
+func (s StringLabel) IsEmpty() bool {
 	return s == STRING_EMPTY
 }

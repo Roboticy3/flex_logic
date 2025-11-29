@@ -14,11 +14,11 @@ type Solver[S LState, T LTime] func([]S, T, *LEvents[S, T])
  `pinout` is the list of pin names for the gate. Helps w/ implementing `Solver`
 */
 type LGate[S LState, T LTime] struct {
-	name   string
+	Name   string
 	Solver Solver[S, T]
-	pinout []string
+	Pinout []string
 }
 
 func (gtype LGate[S, T]) IsEmpty() bool {
-	return gtype.name == STRING_EMPTY
+	return gtype.Name == STRING_EMPTY
 }

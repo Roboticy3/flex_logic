@@ -12,6 +12,22 @@ type LCPinController[S LState, T LTime] struct {
 }
 
 /*
+Get list of nets attached to pin `pid`, or empty list if `pid` is invalid.
+
+Not ideal, since pins can be empty without being invalid.
+*/
+func (pc LCPinController[S, T]) GetNets(pid Label) []Label {
+	p_pin := pc.pinlist.Get(pid)
+	if p_pin == nil {
+		return []Label{}
+	}
+
+	nets := make([]Label, len(p_pin.Nets))
+	copy(nets, p_pin.Nets)
+	return nets
+}
+
+/*
 Add a pin to the circuit.
 
 If the provided `nid` is `LABEL_EMPTY`, the pin is added with no associated
@@ -37,13 +53,13 @@ func (pc LCPinController[S, T]) AddPin(nid Label) Label {
 	}
 
 	result := pc.pinlist.Add(LPin[S, T]{[]Label{nid}, true}, 0)
-	for _, pid := range p_net.pins {
+	for _, pid := range p_net.Pins {
 		if pid == result {
 			return result
 		}
 	}
 
-	p_net.pins = append(p_net.pins, result)
+	p_net.Pins = append(p_net.Pins, result)
 	sort.Sort(p_net)
 
 	return result
@@ -67,7 +83,7 @@ func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
 	}
 
 	//find this pin in the connected nets and remove it
-	for _, nid := range p_pin.nets {
+	for _, nid := range p_pin.Nets {
 		LCNetController[S, T](pc).Detach(nid, pid)
 	}
 

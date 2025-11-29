@@ -1,13 +1,14 @@
-package lcircuit
+package lcircuit_test
 
 import (
 	"container/heap"
+	"flex-logic/lcircuit"
 	"testing"
 )
 
 func TestANDGate(t *testing.T) {
 	states := []int{1, 1, 0} // Inputs: A=1, B=1, Output=0
-	events := &LEvents[int, int]{}
+	events := &lcircuit.LEvents[int, int]{}
 	heap.Init(events)
 
 	testGates[0].Solver(states, 0, events) // AND gate
@@ -20,15 +21,15 @@ func TestANDGate(t *testing.T) {
 		t.Fatalf("Expected 1 event in the queue, got %d", events.Len())
 	}
 
-	event := heap.Pop(events).(LEvent[int, int])
-	if event.signal != 1 || event.time != 1 || event.label != 0 {
+	event := heap.Pop(events).(lcircuit.LEvent[int, int])
+	if event.Signal != 1 || event.Time != 1 || event.Label != 0 {
 		t.Errorf("Unexpected event: %+v", event)
 	}
 }
 
 func TestNOTGate(t *testing.T) {
 	states := []int{1, 1, 0} // Inputs: A=1, Output=0
-	events := &LEvents[int, int]{}
+	events := &lcircuit.LEvents[int, int]{}
 	heap.Init(events)
 
 	testGates[1].Solver(states, 0, events) // NOT gate
@@ -41,18 +42,18 @@ func TestNOTGate(t *testing.T) {
 		t.Fatalf("Expected 1 event in the queue, got %d", events.Len())
 	}
 
-	event := heap.Pop(events).(LEvent[int, int])
-	if event.signal != ^1 || event.time != 1 || event.label != 1 {
+	event := heap.Pop(events).(lcircuit.LEvent[int, int])
+	if event.Signal != ^1 || event.Time != 1 || event.Label != 1 {
 		t.Errorf("Unexpected event: %+v", event)
 	}
 }
 
 func TestLATCHGate(t *testing.T) {
 	states := []int{1, 0, 0, 0} // Inputs: SET=1, RESET=0, INNER=0, OUT=0
-	events := &LEvents[int, int]{}
+	events := &lcircuit.LEvents[int, int]{}
 	heap.Init(events)
 
-	testGates[2].Solver(states, 0, events) // LATCH gate
+	testGates[2].Solver(states, 0, events) // lcircuit.LATCH gate
 
 	if states[2] != 1 {
 		t.Errorf("Expected states[2] to be 1, got %d", states[2])
@@ -65,8 +66,8 @@ func TestLATCHGate(t *testing.T) {
 		t.Fatalf("Expected 1 event in the queue, got %d", events.Len())
 	}
 
-	event := heap.Pop(events).(LEvent[int, int])
-	if event.signal != 1 || event.time != 2 || event.label != 2 {
+	event := heap.Pop(events).(lcircuit.LEvent[int, int])
+	if event.Signal != 1 || event.Time != 2 || event.Label != 2 {
 		t.Errorf("Unexpected event: %+v", event)
 	}
 }

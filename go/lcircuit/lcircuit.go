@@ -9,24 +9,24 @@ is an easy way to add empty entries.
 `nets` will remain sorted and unique for easy search.
 */
 type LPin[S LState, T LTime] struct {
-	nets  []Label
-	valid bool
+	Nets  []Label
+	Valid bool
 }
 
 func (pin LPin[S, T]) IsEmpty() bool {
-	return !pin.valid
+	return !pin.Valid
 }
 
 func (pin LPin[S, T]) Len() int {
-	return len(pin.nets)
+	return len(pin.Nets)
 }
 
 func (pin LPin[S, T]) Less(i, j int) bool {
-	return pin.nets[i] < pin.nets[j]
+	return pin.Nets[i] < pin.Nets[j]
 }
 
 func (pin LPin[S, T]) Swap(i, j int) {
-	pin.nets[i], pin.nets[j] = pin.nets[j], pin.nets[i]
+	pin.Nets[i], pin.Nets[j] = pin.Nets[j], pin.Nets[i]
 }
 
 /*
@@ -36,25 +36,25 @@ events with its `tid`.
 `pins` will remain sorted and unique for easy search.
 */
 type LNet[S LState, T LTime] struct {
-	pins  []Label
-	tid   Label
-	state S
+	Pins  []Label
+	Tid   Label
+	State S
 }
 
 func (net LNet[S, T]) IsEmpty() bool {
-	return len(net.pins) == 0
+	return len(net.Pins) == 0
 }
 
 func (net LNet[S, T]) Len() int {
-	return len(net.pins)
+	return len(net.Pins)
 }
 
 func (net LNet[S, T]) Less(i, j int) bool {
-	return net.pins[i] < net.pins[j]
+	return net.Pins[i] < net.Pins[j]
 }
 
 func (net LNet[S, T]) Swap(i, j int) {
-	net.pins[i], net.pins[j] = net.pins[j], net.pins[i]
+	net.Pins[i], net.Pins[j] = net.Pins[j], net.Pins[i]
 }
 
 /*
@@ -76,14 +76,18 @@ type LCircuit[S LState, T LTime] struct {
 	gatetypes LLabeling[LGate[S, T]]
 }
 
-type LCGateTypeController[S LState, T LTime] struct {
-	*LCircuit[S, T]
+func (lc LCircuit[S, T]) GetNetlist() LLabeling[LNet[S, T]] {
+	return lc.netlist
 }
 
-func (gtc LCGateTypeController[S, T]) FindTypeName(gname string) Label {
+func (lc LCircuit[S, T]) GetPinlist() LLabeling[LPin[S, T]] {
+	return lc.pinlist
+}
+
+func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
 	tid := LABEL_EMPTY
-	for i := range gtc.gatetypes {
-		if gtc.gatetypes[i].name == gname {
+	for i := range lc.gatetypes {
+		if lc.gatetypes[i].Name == gname {
 			tid = Label(i)
 			break
 		}
@@ -94,4 +98,13 @@ func (gtc LCGateTypeController[S, T]) FindTypeName(gname string) Label {
 	}
 
 	return tid
+}
+
+func (lc LCircuit[S, T]) GetGateTypes() LLabeling[LGate[S, T]] {
+	return lc.gatetypes
+}
+
+func (lc *LCircuit[S, T]) SetGateTypes(new_types LLabeling[LGate[S, T]]) {
+	lc.gatetypes = make(LLabeling[LGate[S, T]], len(new_types))
+	copy(lc.gatetypes, new_types)
 }

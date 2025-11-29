@@ -1,9 +1,12 @@
-package lcircuit
+package lcircuit_test
 
-import "testing"
+import (
+	"flex-logic/lcircuit"
+	"testing"
+)
 
 func TestAdd(t *testing.T) {
-	var labels LLabeling[string_label]
+	var labels lcircuit.LLabeling[lcircuit.StringLabel]
 	labels.Add("example", 0)
 	labels.Add("test", 0)
 
@@ -13,7 +16,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	var labels LLabeling[string_label]
+	var labels lcircuit.LLabeling[lcircuit.StringLabel]
 	labels.Set("example", 2)
 
 	if len(labels) != 3 {
@@ -25,7 +28,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	var labels LLabeling[string_label]
+	var labels lcircuit.LLabeling[lcircuit.StringLabel]
 	labels.Set("example", 1)
 
 	if labels.Get(1) == nil || *labels.Get(1) != "example" {
@@ -37,7 +40,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	var labels LLabeling[string_label]
+	var labels lcircuit.LLabeling[lcircuit.StringLabel]
 	labels.Set("example", 1)
 	labels.Remove(1, "")
 

@@ -8,9 +8,9 @@ import (
 Event specifying a `signal` at a pin `label` occuring at time `time`
 */
 type LEvent[S LState, T LTime] struct {
-	time   T
-	signal S
-	label  Label
+	Time   T
+	Signal S
+	Label  Label
 }
 
 type LEvents[S LState, T LTime] []LEvent[S, T]
@@ -22,7 +22,7 @@ var _ heap.Interface = (*LEvents[any, int])(nil)
 //	See reference implemention at https://pkg.go.dev/container/heap
 func (events LEvents[S, T]) Len() int { return len(events) }
 func (events LEvents[S, T]) Less(i, j int) bool {
-	return events[i].time < events[j].time
+	return events[i].Time < events[j].Time
 }
 func (events LEvents[S, T]) Swap(i, j int) {
 	events[i], events[j] = events[j], events[i]
