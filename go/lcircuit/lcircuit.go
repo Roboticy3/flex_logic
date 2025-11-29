@@ -71,23 +71,23 @@ func (net LNet[S, T]) Swap(i, j int) {
 	behavior.
 */
 type LCircuit[S LState, T LTime] struct {
-	netlist   LLabeling[LNet[S, T]]
-	pinlist   LLabeling[LPin[S, T]]
-	gatetypes LLabeling[LGate[S, T]]
+	netlist   *LLabeling[LNet[S, T]]
+	pinlist   *LLabeling[LPin[S, T]]
+	gatetypes *LLabeling[LGate[S, T]]
 }
 
 func (lc LCircuit[S, T]) GetNetlist() LLabeling[LNet[S, T]] {
-	return lc.netlist
+	return *lc.netlist
 }
 
 func (lc LCircuit[S, T]) GetPinlist() LLabeling[LPin[S, T]] {
-	return lc.pinlist
+	return *lc.pinlist
 }
 
 func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
 	tid := LABEL_EMPTY
-	for i := range lc.gatetypes {
-		if lc.gatetypes[i].Name == gname {
+	for i := range *lc.gatetypes {
+		if (*lc.gatetypes)[i].Name == gname {
 			tid = Label(i)
 			break
 		}
@@ -101,10 +101,18 @@ func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
 }
 
 func (lc LCircuit[S, T]) GetGateTypes() LLabeling[LGate[S, T]] {
-	return lc.gatetypes
+	return *lc.gatetypes
 }
 
 func (lc *LCircuit[S, T]) SetGateTypes(new_types LLabeling[LGate[S, T]]) {
-	lc.gatetypes = make(LLabeling[LGate[S, T]], len(new_types))
-	copy(lc.gatetypes, new_types)
+	*lc.gatetypes = make(LLabeling[LGate[S, T]], len(new_types))
+	copy(*lc.gatetypes, new_types)
+}
+
+func CreateCircuit[S LState, T LTime]() *LCircuit[S, T] {
+	return &LCircuit[S, T]{
+		&LLabeling[LNet[S, T]]{},
+		&LLabeling[LPin[S, T]]{},
+		&LLabeling[LGate[S, T]]{},
+	}
 }

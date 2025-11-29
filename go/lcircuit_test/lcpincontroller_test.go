@@ -6,7 +6,7 @@ import (
 )
 
 func TestAddPinEmptyNet(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 
 	pid := pc.AddPin(lcircuit.LABEL_EMPTY)
@@ -20,7 +20,7 @@ func TestAddPinEmptyNet(t *testing.T) {
 }
 
 func TestFillInPin(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 
 	pc.AddPin(lcircuit.LABEL_EMPTY)
@@ -41,7 +41,7 @@ func TestFillInPin(t *testing.T) {
 }
 
 func TestTamperGate(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	circuit.SetGateTypes(testGates)
 
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}

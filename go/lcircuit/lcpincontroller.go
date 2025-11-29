@@ -95,7 +95,7 @@ func (pc LCPinController[S, T]) RemovePin(pid Label) bool {
 
 func (pc LCPinController[S, T]) ListPins() []Label {
 	result := []Label{}
-	for pid, pin := range pc.pinlist {
+	for pid, pin := range *pc.pinlist {
 		if !pin.IsEmpty() {
 			result = append(result, Label(pid))
 		}

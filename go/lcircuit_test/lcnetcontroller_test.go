@@ -6,7 +6,7 @@ import (
 )
 
 func TestMergeFromEmpty(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
@@ -41,7 +41,7 @@ func TestMergeFromEmpty(t *testing.T) {
 }
 
 func TestMergeIntoEmpty(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
@@ -76,7 +76,7 @@ func TestMergeIntoEmpty(t *testing.T) {
 }
 
 func TestMergeTwo(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -109,7 +109,7 @@ func TestMergeTwo(t *testing.T) {
 
 func TestMergeMany(t *testing.T) {
 	//Test merging many nets, invalid and valid, into one
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
@@ -179,7 +179,7 @@ func TestMergeMany(t *testing.T) {
 }
 
 func TestAddNet(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -218,7 +218,7 @@ func TestAddNet(t *testing.T) {
 }
 
 func TestFailAddNet(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -247,7 +247,7 @@ func TestFailAddNet(t *testing.T) {
 }
 
 func TestRemoveNetClean(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -278,7 +278,7 @@ func TestRemoveNetClean(t *testing.T) {
 }
 
 func TestRemoveNetDirty(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -316,7 +316,7 @@ func TestRemoveNetDirty(t *testing.T) {
 }
 
 func TestRemoveNetInvalid(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -350,4 +350,142 @@ func TestRemoveNetInvalid(t *testing.T) {
 	if len(nets) != 4 {
 		t.Errorf("Expected 4 valid nets, got %v", nets)
 	}
+}
+
+func TestComplexNetwork(t *testing.T) {
+	circuit := lcircuit.CreateCircuit[int, int]()
+	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
+	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
+	circuit.SetGateTypes(testGates)
+
+	/*
+		When writing TestCrumble, I ran into some cases when AddNet doesn't work
+		as expected. Let's see what's wrong.
+	*/
+
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{3, 4, 7, 8, 9},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{9, 10, 11, 12},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{2, 5, 6, 9, 10},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{0, 1, 2, 3, 4},
+	})
+
+	nets := nc.ListNets()
+	if len(nets) != 4 {
+		t.Errorf("Expected 5 valid nets, got %v", nets)
+	}
+
+	connections := [][]lcircuit.Label{
+		nc.GetPins(0),
+		nc.GetPins(1),
+		nc.GetPins(2),
+		nc.GetPins(3),
+	}
+
+	if len(connections[0]) != 5 || len(connections[1]) != 4 || len(connections[2]) != 5 || len(connections[3]) != 5 {
+		t.Errorf("Expected 5, 4, 5 pins, got %v", connections)
+	}
+}
+
+func TestCrumble(t *testing.T) {
+	circuit := lcircuit.CreateCircuit[int, int]()
+	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
+	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
+	circuit.SetGateTypes(testGates)
+
+	/*
+		We need 13 pins for this.
+	*/
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(lcircuit.LABEL_EMPTY)
+
+	/*
+		the example I drew on paper has the following four nets to start.
+		  0: 3, 4, 7, 8, 9
+			1: 9, 10, 11, 12
+			2: 2, 5, 6, 9, 10
+			3: 0, 1, 2, 3, 4
+
+		I then crumble the following net:
+			5, 6, 8, 9, 10
+
+		The expected output is then:
+			0: 3, 4, 7, 8
+			1: 9, 11, 12
+			2: 2, 5
+			3: 0, 1, 2, 3, 4 (unaffected)
+			4: 6 (new)
+			5: 10 (new)
+	*/
+
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{3, 4, 7, 8, 9},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{9, 10, 11, 12},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{2, 5, 6, 9, 10},
+	})
+	nc.AddNet(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{0, 1, 2, 3, 4},
+	})
+
+	nc.Crumble(lcircuit.LNet[int, int]{
+		Pins: []lcircuit.Label{5, 6, 8, 9, 10},
+	})
+
+	nets := nc.ListNets()
+	pins := pc.ListPins()
+	if len(nets) != 6 {
+		t.Errorf("Expected 6 valid nets, got %v", nets)
+	}
+	if len(pins) != 13 {
+		t.Errorf("Expected 13 valid pins, got %v", pins)
+	}
+
+	connections := [][]lcircuit.Label{
+		nc.GetPins(0),
+		nc.GetPins(1),
+		nc.GetPins(2),
+		nc.GetPins(3),
+		nc.GetPins(4),
+		nc.GetPins(5),
+	}
+
+	if len(connections[0]) != 4 || len(connections[1]) != 3 || len(connections[2]) != 2 || len(connections[3]) != 5 || len(connections[4]) != 1 || len(connections[5]) != 1 {
+		t.Errorf("Expected 4, 3, 2, 5, 1, 1, pin counts, got %v", connections)
+	}
+
 }

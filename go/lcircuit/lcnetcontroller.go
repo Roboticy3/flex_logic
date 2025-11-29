@@ -174,7 +174,7 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 			p_source.Tid,
 			p_source.State,
 		}
-		nc.netlist[nid1] = new_target
+		(*nc.netlist)[nid1] = new_target
 	} else {
 		//Otherwise, merge the pin arrays, use target for the tid and state
 		//Since net pins are sorted, the merge is O(q) with this:
@@ -250,8 +250,8 @@ func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) Label {
 		p_pin := nc.pinlist.Get(pid)
 		if p_pin != nil {
 			nc.attach_pin(nid, pid, p_pin)
-			nc.netlist[nid].Pins = []Label{pid}
-			valid = i + 1
+			(*nc.netlist)[nid].Pins = []Label{pid}
+			valid = i
 			break
 		}
 	}
@@ -305,7 +305,7 @@ func (nc LCNetController[S, T]) RemoveNet(net LNet[S, T], empty_only bool) bool 
 
 func (nc LCNetController[S, T]) ListNets() []Label {
 	result := []Label{}
-	for nid, net := range nc.netlist {
+	for nid, net := range *nc.netlist {
 		if !net.IsEmpty() {
 			result = append(result, Label(nid))
 		}
@@ -315,70 +315,63 @@ func (nc LCNetController[S, T]) ListNets() []Label {
 }
 
 /*
-Wire 2 valid tid'd nets with a new net of tid `LABEL_EMPTY`. If a net of type
-`LABEL_EMPTY` already exists on either pin, merge all such nets together. Empty
-nets are classified as "wire nets", and this function ensures they stay merged
-while other "gate nets" stay separate.
+If you thought the previous algorithms were egregious and poorly justified,
+get ready! This is a proto-algorithm I came up with for adding/removing wires.
 
-Returns the label of the created net, or `LABEL_EMPTY` if either pin was invalid
+It turns out that splitting nets along a wire requires full knowledge of where
+the actual wires are, so I'm going to make an LCWireController that stores the
+adjacency list separately. But this was a solid attempt.
 
-O(q^2 log q) for q average connections
+Given `net`, "remove" it.
+
+When `net` is removed, for each `pid` in `net`:
+  - Remove all `pid2 != pid` in `net` from every `nid` on pid
+  - If a pin is fully disconnected, create a new net that belongs to it
+  - New nets use the input net's `tid` and `state`.
+
+I call it a "crumble", named after how the process looks when drawn out on paper
+
+Problems with this algorithm:
+  - When splitting within a single net, this will create a bunch of loose pins
+    instead of "splitting" the pin along a wire.
 */
-func (nc LCNetController[S, T]) AddWire(pid1 Label, pid2 Label) Label {
+func (nc LCNetController[S, T]) Crumble(net LNet[S, T]) {
+	for _, pid := range net.Pins {
+		p_pin := nc.pinlist.Get(pid)
+		if p_pin == nil {
+			continue
+		}
 
-	//check for nets to merge into on the pins, validating that the pins exist
-	//in the process
-	p_pins := [](*LPin[S, T]){nc.pinlist.Get(pid1), nc.pinlist.Get(pid2)}
-	if p_pins[0] == nil || p_pins[1] == nil {
-		return LABEL_EMPTY
-	}
-
-	//O(q)
-	merges := []Label{}
-	for _, p_pin := range p_pins {
-		for _, nid := range p_pin.Nets {
-			p_net := nc.netlist.Get(nid)
-			if p_net == nil {
+		for _, pid2 := range net.Pins {
+			if pid == pid2 {
 				continue
 			}
 
-			if p_net.Tid != -1 {
-				merges = append(merges, nid)
+			p_pin2 := nc.pinlist.Get(pid2)
+			if p_pin2 == nil {
+				continue
+			}
+
+			//safe to iterate while detaching since p_pin's network should stay the
+			//same
+			for _, nid := range p_pin.Nets {
+				nc.Detach(nid, pid2)
 			}
 		}
 	}
 
-	//Add the new net
-	var zero S
-	wire := LNet[S, T]{[]Label{pid1, pid2}, LABEL_EMPTY, zero}
-	//O(q^2)
-	nid := nc.AddNet(wire)
+	for _, pid := range net.Pins {
+		p_pin := nc.pinlist.Get(pid)
+		if p_pin == nil {
+			continue
+		}
 
-	if nid == LABEL_EMPTY {
-		return LABEL_EMPTY //should never happen if pin check passed
+		if len(p_pin.Nets) == 0 {
+			nc.AddNet(LNet[S, T]{
+				Pins:  []Label{pid},
+				Tid:   net.Tid,
+				State: net.State,
+			})
+		}
 	}
-
-	//If merges were found, merge the discovered nets together and return the
-	//merge target
-	//O(nq log q) and n is approximately q
-	if len(merges) > 0 {
-		merges = append(merges, nid)
-
-		return nc.Merge(merges)
-	}
-
-	//Otherwise, just return the id of the added net.
-	return nid
-}
-
-/*
-Disconnect `pid1` from `pid2` along nets of type `LABEL_EMPTY` (won't
-disconnect two pins from a gate).
-
-O(q^2)
-*/
-func (nc LCNetController[S, T]) RemoveWire(pid1 Label, pid2 Label) bool {
-	var wire LNet[S, T]
-	wire.Pins = []Label{pid1, pid2}
-	return nc.RemoveNet(wire, true)
 }

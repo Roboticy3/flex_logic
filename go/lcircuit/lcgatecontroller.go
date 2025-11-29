@@ -23,7 +23,7 @@ func (gc LCGateController[S, T]) AddGate(gname string) Label {
 	//Add in the net first, since its easier to fill in the pins on one net
 	//	than to fill in the net on many pins
 	//Might change memory management later to take slices out of a flat array here
-	pincount := len(gc.gatetypes[tid].Pinout)
+	pincount := len((*gc.gatetypes)[tid].Pinout)
 	pins := make([]Label, pincount)
 	var zero S
 	nid := gc.netlist.Add(LNet[S, T]{
@@ -77,7 +77,7 @@ O(n) for n gates.
 */
 func (gc LCGateController[S, T]) ListGateIds() []Label {
 	result := []Label{}
-	for nid, net := range gc.netlist {
+	for nid, net := range *gc.netlist {
 		if !net.IsEmpty() && net.Tid != LABEL_EMPTY {
 			result = append(result, Label(nid))
 		}

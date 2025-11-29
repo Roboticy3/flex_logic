@@ -6,7 +6,7 @@ import (
 )
 
 func TestAddGate(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gview := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
 
@@ -28,7 +28,7 @@ func TestAddGate(t *testing.T) {
 }
 
 func TestAddGateInvalid(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gview := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
 
@@ -46,7 +46,7 @@ func TestAddGateInvalid(t *testing.T) {
 }
 
 func TestAddMultipleGates(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gview := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
 
@@ -68,7 +68,7 @@ func TestAddMultipleGates(t *testing.T) {
 }
 
 func TestAddRemoveGates(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
@@ -97,7 +97,7 @@ func TestAddRemoveGates(t *testing.T) {
 }
 
 func TestFillInRemovedGate(t *testing.T) {
-	circuit := &lcircuit.LCircuit[int, int]{}
+	circuit := lcircuit.CreateCircuit[int, int]()
 	gc := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
