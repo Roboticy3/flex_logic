@@ -356,3 +356,166 @@ func TestMergeMany(t *testing.T) {
 		t.Errorf("Expected 36 slots in pinlist, got %v", gc.pinlist)
 	}
 }
+
+func TestAddNet(t *testing.T) {
+	circuit := &LCircuit[int, int]{}
+	gc := LCGateController[int, int]{circuit}
+	nc := LCNetController[int, int]{circuit}
+	gc.gatetypes = testGates
+
+	gc.AddGate("AND")
+	gc.AddGate("NOT")
+	gc.AddGate("LATCH")
+
+	new_net := LNet[int, int]{
+		[]Label{8, 4, 2, 0, -1, 345, 4}, -1, -1,
+	}
+	nid := nc.AddNet(new_net)
+	p_net := nc.netlist.Get(nid)
+
+	nets := nc.ListNets()
+
+	if p_net == nil {
+		t.Errorf("Must be able to retrieve net %d to continue with test. valid nets: %v", nid, nets)
+		return
+	}
+
+	/*
+		Adding a net should sort the input pins
+		Invalid pins should be skipped
+
+		Expected pinout of new net: 0, 2, 4, 8
+	*/
+	if len(nets) != 4 || nets[0] != 0 || nets[1] != 1 || nets[2] != 2 || nets[3] != 3 {
+		t.Errorf("Expected 4 valid nets with contiguous ids, got %v", nets)
+	}
+
+	pins := p_net.pins
+	if len(pins) != 4 || pins[0] != 0 || pins[1] != 2 || pins[2] != 4 || pins[3] != 8 {
+		t.Errorf("Expected net %d to have pins 0, 2, 4, 9, found %v", nid, pins)
+	}
+
+}
+
+func TestFailAddNet(t *testing.T) {
+	circuit := &LCircuit[int, int]{}
+	gc := LCGateController[int, int]{circuit}
+	nc := LCNetController[int, int]{circuit}
+	gc.gatetypes = testGates
+
+	gc.AddGate("AND")
+	gc.AddGate("NOT")
+	gc.AddGate("LATCH")
+
+	new_net := LNet[int, int]{
+		[]Label{-1, -3244, 45, 9}, -1, -1,
+	}
+	nid := nc.AddNet(new_net)
+	p_net := nc.netlist.Get(nid)
+
+	/*
+		Adding a net fails when no valid pins are on the net. Since empty nets are
+		invalid states, the net should be removed cleanly.
+	*/
+
+	if p_net != nil {
+		t.Errorf("Expected to fail adding net, found net %d with pins %v", nid, p_net.pins)
+		return
+	}
+}
+
+func TestRemoveNetClean(t *testing.T) {
+	circuit := &LCircuit[int, int]{}
+	gc := LCGateController[int, int]{circuit}
+	nc := LCNetController[int, int]{circuit}
+	gc.gatetypes = testGates
+
+	gc.AddGate("AND")
+	gc.AddGate("NOT")
+	gc.AddGate("LATCH")
+
+	new_net := LNet[int, int]{
+		[]Label{8, 4, 2, 0, -1, 345, 4}, -1, -1,
+	}
+	nid := nc.AddNet(new_net)
+
+	/*
+		Removing all pins on a net should remove it from the circuit
+	*/
+	result := nc.RemoveNet(new_net, false)
+	nets := nc.ListNets()
+
+	if !result {
+		t.Errorf("Expected to remove net %d, but it failed", nid)
+	}
+	if len(nets) != 3 {
+		t.Errorf("Expected 3 valid nets, got %v", nets)
+	}
+}
+
+func TestRemoveNetDirty(t *testing.T) {
+	circuit := &LCircuit[int, int]{}
+	gc := LCGateController[int, int]{circuit}
+	nc := LCNetController[int, int]{circuit}
+	gc.gatetypes = testGates
+
+	gc.AddGate("AND")
+	gc.AddGate("NOT")
+	gc.AddGate("LATCH")
+
+	new_net := LNet[int, int]{
+		[]Label{8, 4, 2, 0, -1, 345, 4}, -1, -1,
+	}
+	nid := nc.AddNet(new_net)
+
+	/*
+		Try removing a set of indices not corresponding directly to an existing net.
+		This test case made more sense when the remove behavior was more complicated
+		, but it still makes me comfortable to have it around.
+	*/
+	dirty_remove := LNet[int, int]{
+		[]Label{0, 1, 2, -1, 9}, -1, -1,
+	}
+	result := nc.RemoveNet(dirty_remove, false)
+	nets := nc.ListNets()
+
+	if !result {
+		t.Errorf("Expected to remove net %d, but it failed", nid)
+	}
+	if len(nets) != 3 {
+		t.Errorf("Expected 3 valid nets, got %v", nets)
+	}
+}
+
+func TestRemoveNetInvalid(t *testing.T) {
+	circuit := &LCircuit[int, int]{}
+	gc := LCGateController[int, int]{circuit}
+	nc := LCNetController[int, int]{circuit}
+	gc.gatetypes = testGates
+
+	gc.AddGate("AND")
+	gc.AddGate("NOT")
+	gc.AddGate("LATCH")
+
+	new_net := LNet[int, int]{
+		[]Label{8, 4, 2, 0, -1, 345, 4}, -1, -1,
+	}
+	nc.AddNet(new_net)
+
+	/*
+		Try removing only invalid indices. Netlist should be unaffected and result
+		should be false
+	*/
+	invalid_remove := LNet[int, int]{
+		[]Label{-1, 9, 2359, -3124}, -1, -1,
+	}
+	result := nc.RemoveNet(invalid_remove, false)
+	nets := nc.ListNets()
+
+	if result {
+		t.Errorf("Expected to fail removing %v, instead succeeded.", invalid_remove.pins)
+	}
+	if len(nets) != 4 {
+		t.Errorf("Expected 4 valid nets, got %v", nets)
+	}
+}

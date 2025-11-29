@@ -58,13 +58,17 @@ func (net LNet[S, T]) Swap(i, j int) {
 }
 
 /*
-	 Base type for a circuit
+	Base type for a circuit
 		`netlist`	labeling over nets on the circuit
 		`pinlist` labeling over pins on the circuit
 		`gatetypes` labeling over the `tid` field of each net in `netlist`
 
 		Each pin belongs to n nets
 		Each net sees p pins and has an optional gate type.
+
+	Edit using only LCGateController and LCWireController to maintain a valid
+	state for simulation. Otherwise simulating a circuit can have undefined
+	behavior.
 */
 type LCircuit[S LState, T LTime] struct {
 	netlist   LLabeling[LNet[S, T]]
