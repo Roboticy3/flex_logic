@@ -445,8 +445,6 @@ func TestCrumble(t *testing.T) {
 			1: 9, 11, 12
 			2: 2, 5
 			3: 0, 1, 2, 3, 4 (unaffected)
-			4: 6 (new)
-			5: 10 (new)
 	*/
 
 	nc.AddNet(lcircuit.LNet[int, int]{
@@ -468,8 +466,8 @@ func TestCrumble(t *testing.T) {
 
 	nets := nc.ListNets()
 	pins := pc.ListPins()
-	if len(nets) != 6 {
-		t.Errorf("Expected 6 valid nets, got %v", nets)
+	if len(nets) != 4 {
+		t.Errorf("Expected 4 valid nets, got %v", nets)
 	}
 	if len(pins) != 13 {
 		t.Errorf("Expected 13 valid pins, got %v", pins)
@@ -480,12 +478,10 @@ func TestCrumble(t *testing.T) {
 		nc.GetPins(1),
 		nc.GetPins(2),
 		nc.GetPins(3),
-		nc.GetPins(4),
-		nc.GetPins(5),
 	}
 
-	if len(connections[0]) != 4 || len(connections[1]) != 3 || len(connections[2]) != 2 || len(connections[3]) != 5 || len(connections[4]) != 1 || len(connections[5]) != 1 {
-		t.Errorf("Expected 4, 3, 2, 5, 1, 1, pin counts, got %v", connections)
+	if len(connections[0]) != 4 || len(connections[1]) != 3 || len(connections[2]) != 2 || len(connections[3]) != 5 {
+		t.Errorf("Expected 4, 3, 2, 5 pins, got %v", connections)
 	}
 
 }

@@ -77,11 +77,34 @@ type LCircuit[S LState, T LTime] struct {
 }
 
 func (lc LCircuit[S, T]) GetNetlist() LLabeling[LNet[S, T]] {
-	return *lc.netlist
+	if lc.netlist == nil {
+		return LLabeling[LNet[S, T]]{}
+	}
+	result := make(LLabeling[LNet[S, T]], len(*lc.netlist))
+	for i, net := range *lc.netlist {
+		if net.Pins != nil {
+			result[i].Pins = make([]Label, len(net.Pins))
+			copy(result[i].Pins, net.Pins)
+		}
+		result[i].Tid = net.Tid
+		result[i].State = net.State
+	}
+	return result
 }
 
 func (lc LCircuit[S, T]) GetPinlist() LLabeling[LPin[S, T]] {
-	return *lc.pinlist
+	if lc.pinlist == nil {
+		return LLabeling[LPin[S, T]]{}
+	}
+	result := make(LLabeling[LPin[S, T]], len(*lc.pinlist))
+	for i, pin := range *lc.pinlist {
+		if pin.Nets != nil {
+			result[i].Nets = make([]Label, len(pin.Nets))
+			copy(result[i].Nets, pin.Nets)
+		}
+		result[i].Valid = pin.Valid
+	}
+	return result
 }
 
 func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
@@ -101,7 +124,12 @@ func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
 }
 
 func (lc LCircuit[S, T]) GetGateTypes() LLabeling[LGate[S, T]] {
-	return *lc.gatetypes
+	if lc.gatetypes == nil {
+		return LLabeling[LGate[S, T]]{}
+	}
+	result := make(LLabeling[LGate[S, T]], len(*lc.gatetypes))
+	copy(result, *lc.gatetypes)
+	return result
 }
 
 func (lc *LCircuit[S, T]) SetGateTypes(new_types LLabeling[LGate[S, T]]) {

@@ -46,11 +46,19 @@ func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
 
 	//remove nid from sorted array. Empty arrays are considered empty entries
 	i := sort.Search(len(p_pin.Nets), func(k int) bool { return p_pin.Nets[k] >= nid })
-	p_pin.Nets = append(p_pin.Nets[0:i], p_pin.Nets[i+1:]...)
+	if i < len(p_pin.Nets)-1 && p_pin.Nets[i] == nid {
+		p_pin.Nets = append(p_pin.Nets[0:i], p_pin.Nets[i+1:]...)
+	} else if i == len(p_pin.Nets)-1 && p_pin.Nets[i] == nid {
+		p_pin.Nets = p_pin.Nets[:i]
+	}
 
 	//remove pid from sorted array
 	j := sort.Search(len(p_net.Pins), func(k int) bool { return p_net.Pins[k] >= pid })
-	p_net.Pins = append(p_net.Pins[0:j], p_net.Pins[j+1:]...)
+	if j < len(p_net.Pins)-1 && p_net.Pins[j] == pid {
+		p_net.Pins = append(p_net.Pins[0:j], p_net.Pins[j+1:]...)
+	} else if j == len(p_net.Pins)-1 && p_net.Pins[j] == pid {
+		p_net.Pins = p_net.Pins[:j]
+	}
 
 	//if the net is emptied out, don't have to explicitly remove since a net with
 	//no connections is invalid implicitly.
@@ -326,8 +334,6 @@ Given `net`, "remove" it.
 
 When `net` is removed, for each `pid` in `net`:
   - Remove all `pid2 != pid` in `net` from every `nid` on pid
-  - If a pin is fully disconnected, create a new net that belongs to it
-  - New nets use the input net's `tid` and `state`.
 
 I call it a "crumble", named after how the process looks when drawn out on paper
 
@@ -357,21 +363,6 @@ func (nc LCNetController[S, T]) Crumble(net LNet[S, T]) {
 			for _, nid := range p_pin.Nets {
 				nc.Detach(nid, pid2)
 			}
-		}
-	}
-
-	for _, pid := range net.Pins {
-		p_pin := nc.pinlist.Get(pid)
-		if p_pin == nil {
-			continue
-		}
-
-		if len(p_pin.Nets) == 0 {
-			nc.AddNet(LNet[S, T]{
-				Pins:  []Label{pid},
-				Tid:   net.Tid,
-				State: net.State,
-			})
 		}
 	}
 }
