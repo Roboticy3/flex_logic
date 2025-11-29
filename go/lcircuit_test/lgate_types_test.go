@@ -28,7 +28,7 @@ var testGates []lcircuit.LGate[int, int] = []lcircuit.LGate[int, int]{
 		Pinout: []string{"A", "OUT"},
 	},
 	{
-		Name: "lcircuit.LATCH",
+		Name: "LATCH",
 		Solver: func(states []int, Time int, events *lcircuit.LEvents[int, int]) {
 			states[2] |= states[0]
 			states[2] &^= states[1]

@@ -14,7 +14,7 @@ func TestMergeFromEmpty(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	result := nc.MergeTwo(0, lcircuit.LABEL_EMPTY)
 
@@ -24,7 +24,7 @@ func TestMergeFromEmpty(t *testing.T) {
 		t.Errorf("Expected merge to fail, but it succeeded")
 	}
 	if len(gates) != 3 || gates[0] != 0 || gates[1] != 1 || gates[2] != 2 {
-		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (NOT), and 2 (lcircuit.LATCH), but found %v", gates)
+		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (NOT), and 2 (LATCH), but found %v", gates)
 	}
 	if len(pins) != 9 {
 		t.Errorf("Expected 5 valid pins, got %v", pins)
@@ -49,7 +49,7 @@ func TestMergeIntoEmpty(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	result := nc.MergeTwo(lcircuit.LABEL_EMPTY, 0)
 
@@ -59,7 +59,7 @@ func TestMergeIntoEmpty(t *testing.T) {
 		t.Errorf("Expected merge to fail, but it succeeded")
 	}
 	if len(gates) != 3 || gates[0] != 0 || gates[1] != 1 || gates[2] != 2 {
-		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (NOT), and 2 (lcircuit.LATCH), but found %v", gates)
+		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (NOT), and 2 (LATCH), but found %v", gates)
 	}
 	if len(pins) != 9 {
 		t.Errorf("Expected 5 valid pins, got %v", pins)
@@ -83,7 +83,7 @@ func TestMergeTwo(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	nc := lcircuit.LCNetController[int, int]{LCircuit: circuit}
 	result := nc.MergeTwo(0, 2)
@@ -117,16 +117,16 @@ func TestMergeMany(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	gc.RemoveGate(6)
 	gc.RemoveGate(10)
@@ -165,7 +165,7 @@ func TestMergeMany(t *testing.T) {
 	gates = gc.ListGateIds()
 	pins = pc.ListPins()
 	if len(gates) != 5 || gates[0] != 0 || gates[1] != 1 || gates[2] != 2 || gates[3] != 3 || gates[4] != 9 {
-		t.Errorf("Expected 5 valid gates with ids 0 (AND), 1 (NOT), 2 (lcircuit.LATCH), 3 (AND), and 9 (AND), but found %v", gates)
+		t.Errorf("Expected 5 valid gates with ids 0 (AND), 1 (NOT), 2 (LATCH), 3 (AND), and 9 (AND), but found %v", gates)
 	}
 	if len(pins) != 31 {
 		t.Errorf("Expected 31 valid pins, got %v", pins)
@@ -186,7 +186,7 @@ func TestAddNet(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
 		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
@@ -225,7 +225,7 @@ func TestFailAddNet(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
 		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
@@ -254,7 +254,7 @@ func TestRemoveNetClean(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
 		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
@@ -285,7 +285,7 @@ func TestRemoveNetDirty(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
 		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
@@ -323,7 +323,7 @@ func TestRemoveNetInvalid(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
 		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},

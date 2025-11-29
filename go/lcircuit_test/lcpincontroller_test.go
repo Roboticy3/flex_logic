@@ -33,7 +33,7 @@ func TestFillInPin(t *testing.T) {
 	pins := pc.ListPins()
 
 	if len(pins) != 3 || pins[0] != 0 || pins[1] != 1 || pins[2] != 2 {
-		t.Errorf("Expected 2 gates with ids 0 (AND) and 2 (lcircuit.LATCH), but found %v", pins)
+		t.Errorf("Expected 2 gates with ids 0 (AND) and 2 (LATCH), but found %v", pins)
 	}
 	if len(pc.GetPinlist()) != 3 {
 		t.Errorf("Expected 3 slots in netlist, got %d", len(pc.GetNetlist()))

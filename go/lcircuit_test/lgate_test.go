@@ -53,7 +53,7 @@ func TestLATCHGate(t *testing.T) {
 	events := &lcircuit.LEvents[int, int]{}
 	heap.Init(events)
 
-	testGates[2].Solver(states, 0, events) // lcircuit.LATCH gate
+	testGates[2].Solver(states, 0, events) // LATCH gate
 
 	if states[2] != 1 {
 		t.Errorf("Expected states[2] to be 1, got %d", states[2])

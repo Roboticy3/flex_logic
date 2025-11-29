@@ -53,7 +53,7 @@ func TestAddMultipleGates(t *testing.T) {
 	results := []lcircuit.Label{
 		gview.AddGate("AND"),
 		gview.AddGate("NOT"),
-		gview.AddGate("lcircuit.LATCH"),
+		gview.AddGate("LATCH"),
 	}
 
 	if results[0] != 0 || results[1] != 1 || results[2] != 2 {
@@ -62,7 +62,7 @@ func TestAddMultipleGates(t *testing.T) {
 	if len(gview.GetNetlist()) != 3 {
 		t.Errorf("Expected 3 slots in netlist, got %d", len(gview.GetNetlist()))
 	}
-	if len(gview.GetPinlist()) != 9 { //AND has 3, NOT 2, lcircuit.LATCH 4. No merges = 9 nets
+	if len(gview.GetPinlist()) != 9 { //AND has 3, NOT 2, LATCH 4. No merges = 9 nets
 		t.Errorf("Expected 8 slots in pinlist, got %d", len(gview.GetPinlist()))
 	}
 }
@@ -75,7 +75,7 @@ func TestAddRemoveGates(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	gc.RemoveGate(1)
 
@@ -83,7 +83,7 @@ func TestAddRemoveGates(t *testing.T) {
 	pins := pc.ListPins()
 
 	if len(gates) != 2 || gates[0] != 0 || gates[1] != 2 {
-		t.Errorf("Expected 2 valid gates with ids 0 (AND) and 2 (lcircuit.LATCH), but found %v", gates)
+		t.Errorf("Expected 2 valid gates with ids 0 (AND) and 2 (LATCH), but found %v", gates)
 	}
 	if len(pins) != 7 {
 		t.Errorf("Expected 5 valid pins, got %v", pins)
@@ -104,17 +104,17 @@ func TestFillInRemovedGate(t *testing.T) {
 
 	gc.AddGate("AND")
 	gc.AddGate("NOT")
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	gc.RemoveGate(1)
 
-	gc.AddGate("lcircuit.LATCH")
+	gc.AddGate("LATCH")
 
 	gates := gc.ListGateIds()
 	pins := pc.ListPins()
 
 	if len(gates) != 3 || gates[0] != 0 || gates[1] != 1 || gates[2] != 2 {
-		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (second lcircuit.LATCH), and 2 (first lcircuit.LATCH), but found %v", gates)
+		t.Errorf("Expected 3 valid gates with ids 0 (AND), 1 (second LATCH), and 2 (first LATCH), but found %v", gates)
 	}
 	if len(pins) != 11 {
 		t.Errorf("Expected 6 valid pins, got %v", pins)
