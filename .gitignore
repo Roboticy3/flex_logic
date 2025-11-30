@@ -3,3 +3,71 @@
 *.o
 *.cf
 work/*
+*.obj
+
+### godot-cpp
+# Godot auto generated files
+*.gen.*
+.import/
+.godot/
+*/gen/
+
+# Godot 3.x ignores
+*/include/gen
+*/src/gen
+
+# Build configuration.
+*/custom.py
+
+# Misc
+*/logs/*
+*.log
+
+# The default cache directory
+*/cache/
+
+# Binaries
+*.o
+*.os
+*.so
+*.obj
+*.bc
+*.pyc
+*.dblite
+*.pdb
+*.lib
+*/bin/*
+*.config
+*.creator
+*.creator.user
+*.files
+*.includes
+*.idb
+
+# Gprof output
+*gmon.out
+
+# Vim temp files
+*.swo
+*.swp
+
+# Qt project files
+*.config
+*.creator
+*.creator.*
+*.files
+*.includes
+*.cflags
+*.cxxflags
+
+# Eclipse CDT files
+*/.cproject
+*/.settings/
+
+# Geany/geany-plugins files
+*.geany
+*.geanyprj
+
+# Misc
+*.DS_Store
+*/logs/
