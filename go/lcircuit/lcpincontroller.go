@@ -45,8 +45,9 @@ O(q log q) for q average connections on a net.
 */
 func (pc LCPinController[S, T]) AddPin(nid c.Label) c.Label {
 
+	var zero S
 	if nid == c.LABEL_EMPTY {
-		return pc.pinlist.Add(LPin[S, T]{[]c.Label{}, true}, 0)
+		return pc.pinlist.Add(LPin[S, T]{[]c.Label{}, true, zero}, 0)
 	}
 
 	p_net := pc.netlist.Get(nid)
@@ -54,7 +55,7 @@ func (pc LCPinController[S, T]) AddPin(nid c.Label) c.Label {
 		return c.LABEL_EMPTY
 	}
 
-	result := pc.pinlist.Add(LPin[S, T]{[]c.Label{nid}, true}, 0)
+	result := pc.pinlist.Add(LPin[S, T]{[]c.Label{nid}, true, zero}, 0)
 	for _, pid := range p_net.Pins {
 		if pid == result {
 			return result

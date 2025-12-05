@@ -189,10 +189,9 @@ func TestAddNet(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	new_net := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
-		Tid:   -1,
-		State: -1,
+	new_net := lcircuit.LNet{
+		Pins: []c.Label{8, 4, 2, 0, -1, 345, 4},
+		Tid:  -1,
 	}
 	nid := nc.AddNet(new_net)
 	pins := nc.GetPins(nid)
@@ -228,10 +227,9 @@ func TestFailAddNet(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	new_net := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
-		Tid:   -1,
-		State: -1,
+	new_net := lcircuit.LNet{
+		Pins: []c.Label{8, 4, 2, 0, -1, 345, 4},
+		Tid:  -1,
 	}
 	nid := nc.AddNet(new_net)
 	pins := nc.GetPins(nid)
@@ -257,10 +255,9 @@ func TestRemoveNetClean(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	new_net := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
-		Tid:   -1,
-		State: -1,
+	new_net := lcircuit.LNet{
+		Pins: []c.Label{8, 4, 2, 0, -1, 345, 4},
+		Tid:  -1,
 	}
 	nid := nc.AddNet(new_net)
 
@@ -288,10 +285,9 @@ func TestRemoveNetDirty(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	new_net := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
-		Tid:   -1,
-		State: -1,
+	new_net := lcircuit.LNet{
+		Pins: []c.Label{8, 4, 2, 0, -1, 345, 4},
+		Tid:  -1,
 	}
 	nid := nc.AddNet(new_net)
 
@@ -300,10 +296,9 @@ func TestRemoveNetDirty(t *testing.T) {
 		This test case made more sense when the remove behavior was more complicated
 		, but it still makes me comfortable to have it around.
 	*/
-	dirty_remove := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{0, 1, 2, -1, 9},
-		Tid:   -1,
-		State: -1,
+	dirty_remove := lcircuit.LNet{
+		Pins: []c.Label{0, 1, 2, -1, 9},
+		Tid:  -1,
 	}
 	result := nc.RemoveNet(dirty_remove, false)
 	nets := nc.ListNets()
@@ -326,10 +321,9 @@ func TestRemoveNetInvalid(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	new_net := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
-		Tid:   -1,
-		State: -1,
+	new_net := lcircuit.LNet{
+		Pins: []c.Label{8, 4, 2, 0, -1, 345, 4},
+		Tid:  -1,
 	}
 	nc.AddNet(new_net)
 
@@ -337,10 +331,9 @@ func TestRemoveNetInvalid(t *testing.T) {
 		Try removing only invalid indices. Netlist should be unaffected and result
 		should be false
 	*/
-	invalid_remove := lcircuit.LNet[int, int]{
-		Pins:  []c.Label{-1, -324, 456, 9},
-		Tid:   -1,
-		State: -1,
+	invalid_remove := lcircuit.LNet{
+		Pins: []c.Label{-1, -324, 456, 9},
+		Tid:  -1,
 	}
 	result := nc.RemoveNet(invalid_remove, false)
 	nets := nc.ListNets()
@@ -378,16 +371,16 @@ func TestComplexNetwork(t *testing.T) {
 	pc.AddPin(c.LABEL_EMPTY)
 	pc.AddPin(c.LABEL_EMPTY)
 
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{3, 4, 7, 8, 9},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{9, 10, 11, 12},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{2, 5, 6, 9, 10},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{0, 1, 2, 3, 4},
 	})
 
@@ -448,20 +441,20 @@ func TestCrumble(t *testing.T) {
 			3: 0, 1, 2, 3, 4 (unaffected)
 	*/
 
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{3, 4, 7, 8, 9},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{9, 10, 11, 12},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{2, 5, 6, 9, 10},
 	})
-	nc.AddNet(lcircuit.LNet[int, int]{
+	nc.AddNet(lcircuit.LNet{
 		Pins: []c.Label{0, 1, 2, 3, 4},
 	})
 
-	nc.Crumble(lcircuit.LNet[int, int]{
+	nc.Crumble(lcircuit.LNet{
 		Pins: []c.Label{5, 6, 8, 9, 10},
 	})
 

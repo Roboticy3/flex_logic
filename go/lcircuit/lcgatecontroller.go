@@ -30,18 +30,17 @@ func (gc LCGateController[S, T]) AddGate(gname string) c.Label {
 	//Might change memory management later to take slices out of a flat array here
 	pincount := len((*gc.gatetypes)[tid].Pinout)
 	pins := make([]c.Label, pincount)
-	var zero S
-	nid := gc.netlist.Add(LNet[S, T]{
+	nid := gc.netlist.Add(LNet{
 		pins,
 		tid,
-		zero,
 	}, 0)
 
 	//Drizzle new pins into the pinlist. The new net's pin array will be sorted
 	//as a result :)
 	pid := 0
+	var zero S
 	for i := range pincount {
-		pins[i] = gc.pinlist.Add(LPin[S, T]{[]c.Label{nid}, true}, pid)
+		pins[i] = gc.pinlist.Add(LPin[S, T]{[]c.Label{nid}, true, zero}, pid)
 		pid = int(pins[i]) + 1
 	}
 

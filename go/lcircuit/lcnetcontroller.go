@@ -74,7 +74,7 @@ Internal function. Produce one-way connection from `nid` to `pid`.
 Assumes `p_net` is not `nil` and corresponds to `nid`. Returns false if `nid`
 was already connected to `pid`.
 */
-func (nc LCNetController[S, T]) attach_net(nid c.Label, pid c.Label, p_net *LNet[S, T]) bool {
+func (nc LCNetController[S, T]) attach_net(nid c.Label, pid c.Label, p_net *LNet) bool {
 	i := sort.Search(len(p_net.Pins), func(k int) bool { return p_net.Pins[k] >= pid })
 	if i >= len(p_net.Pins) || p_net.Pins[i] != pid {
 		p_net.Pins = slices.Insert(p_net.Pins, i, pid)
@@ -179,10 +179,9 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 c.Label, nid2 c.Label) bool {
 		}
 
 		//In this case, just make a new target with no connections.
-		new_target := LNet[S, T]{
+		new_target := LNet{
 			p_source.Pins,
 			p_source.Tid,
-			p_source.State,
 		}
 		(*nc.netlist)[nid1] = new_target
 	} else {
@@ -230,7 +229,7 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 c.Label, nid2 c.Label) bool {
 	}
 
 	//remove the source *without* removing pins, since they have been retargeted
-	nc.netlist.Remove(nid2, LNet[S, T]{})
+	nc.netlist.Remove(nid2, LNet{})
 
 	return true
 }
@@ -243,13 +242,12 @@ If no valid pins are on net.pins, the function fails and returns c.LABEL_EMPTY
 
 O(q^2) for q average connections
 */
-func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) c.Label {
+func (nc LCNetController[S, T]) AddNet(net LNet) c.Label {
 
 	//new_net to copy net into. Helps with checking pins
-	new_net := LNet[S, T]{
-		Pins:  []c.Label{},
-		Tid:   net.Tid,
-		State: net.State,
+	new_net := LNet{
+		Pins: []c.Label{},
+		Tid:  net.Tid,
 	}
 	nid := nc.netlist.Add(new_net, 0)
 
@@ -267,7 +265,7 @@ func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) c.Label {
 	}
 
 	if valid == -1 {
-		var zero LNet[S, T]
+		var zero LNet
 		nc.netlist.Remove(nid, zero)
 		return c.LABEL_EMPTY
 	}
@@ -287,7 +285,7 @@ is true, pins are not removed from nets with a valid `tid` (e.g. gates).
 
 O(nq^2) for n input pins and q average connections
 */
-func (nc LCNetController[S, T]) RemoveNet(net LNet[S, T], empty_only bool) bool {
+func (nc LCNetController[S, T]) RemoveNet(net LNet, empty_only bool) bool {
 
 	valid := false
 	for _, pid := range net.Pins {
@@ -343,7 +341,7 @@ Problems with this algorithm:
   - When splitting within a single net, this will create a bunch of loose pins
     instead of "splitting" the pin along a wire.
 */
-func (nc LCNetController[S, T]) Crumble(net LNet[S, T]) {
+func (nc LCNetController[S, T]) Crumble(net LNet) {
 	for _, pid := range net.Pins {
 		p_pin := nc.pinlist.Get(pid)
 		if p_pin == nil {

@@ -5,13 +5,13 @@ import (
 	"flex-logic/lcircuit"
 )
 
-var testGates []lcircuit.LGate[int, int] = []lcircuit.LGate[int, int]{
+var testGates []lcircuit.LGate[[]lcircuit.LPin[int, int], int, int] = []lcircuit.LGate[[]lcircuit.LPin[int, int], int, int]{
 	{
 		Name: "AND",
-		Solver: func(states []int, Time int, events *c.LEvents[int, int]) {
-			states[2] = states[0] & states[1]
+		Solver: func(pins []lcircuit.LPin[int, int], Time int, events *c.LEvents[int, int]) {
+			pins[2].State = pins[0].State & pins[1].State
 			events.Push(c.LEvent[int, int]{
-				Signal: states[2],
+				Signal: pins[2].State,
 				Time:   Time + 1,
 				Label:  0,
 			})
@@ -20,10 +20,10 @@ var testGates []lcircuit.LGate[int, int] = []lcircuit.LGate[int, int]{
 	},
 	{
 		Name: "NOT",
-		Solver: func(states []int, Time int, events *c.LEvents[int, int]) {
-			states[1] = ^states[0]
+		Solver: func(pins []lcircuit.LPin[int, int], Time int, events *c.LEvents[int, int]) {
+			pins[1].State = ^pins[0].State
 			events.Push(c.LEvent[int, int]{
-				Signal: states[1],
+				Signal: pins[1].State,
 				Time:   Time + 1,
 				Label:  1,
 			})
@@ -32,12 +32,12 @@ var testGates []lcircuit.LGate[int, int] = []lcircuit.LGate[int, int]{
 	},
 	{
 		Name: "LATCH",
-		Solver: func(states []int, Time int, events *c.LEvents[int, int]) {
-			states[2] |= states[0]
-			states[2] &^= states[1]
-			states[3] = states[2]
+		Solver: func(pins []lcircuit.LPin[int, int], Time int, events *c.LEvents[int, int]) {
+			pins[2].State |= pins[0].State
+			pins[2].State &^= pins[1].State
+			pins[3].State = pins[2].State
 			events.Push(c.LEvent[int, int]{
-				Signal: states[3],
+				Signal: pins[3].State,
 				Time:   Time + 2,
 				Label:  2,
 			})
