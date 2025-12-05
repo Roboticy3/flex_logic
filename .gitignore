@@ -4,10 +4,14 @@
 *.cf
 work/*
 *.obj
+*.dll
+*.exp
 
 ### godot-cpp
 # Godot auto generated files
 *.gen.*
+*.import
+*.uid
 .import/
 .godot/
 */gen/

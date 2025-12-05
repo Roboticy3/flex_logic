@@ -1,6 +1,7 @@
 package main
 
 import (
+	"C"
 	"flex-logic/lcircuit"
 	"fmt"
 )
@@ -12,8 +13,9 @@ welcome
 			O			/
 `
 
+//export TestImport
 func TestImport() int {
-	return 42
+	return 47
 }
 
 func main() {

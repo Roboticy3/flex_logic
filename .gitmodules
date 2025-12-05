@@ -4,6 +4,3 @@
 [submodule "flex-logic-schemes/ghdl-embedded/ghdl"]
 	path = flex-logic-schemes/ghdl-embedded/ghdl
 	url = https://github.com/ghdl/ghdl.git
-[submodule "go-wrapper"]
-	path = go-wrapper/godot-cpp
-	url = https://github.com/godotengine/godot-cpp.git
