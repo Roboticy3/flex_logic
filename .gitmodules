@@ -4,3 +4,5 @@
 [submodule "flex-logic-schemes/ghdl-embedded/ghdl"]
 	path = flex-logic-schemes/ghdl-embedded/ghdl
 	url = https://github.com/ghdl/ghdl.git
+[submodule "go-wrapper/godot-go"]
+	path = go-wrapper/godot-go
