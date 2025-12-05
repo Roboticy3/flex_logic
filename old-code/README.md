@@ -13,7 +13,7 @@ Cool features:
 # Simulation resources
 I'll try to keep the simulation inspired by the Verilog standard.
 
-https://www.eg.bucknell.edu/~csci320/2016-fall/wp-content/uploads/2015/08/verilog-std-1364-2005.pdf
+https://www.eg.bucknec.edu/~csci320/2016-fall/wp-content/uploads/2015/08/verilog-std-1364-2005.pdf
  - All of chapter seven. Tables 7-1 and 7-3 particularly
  - Table 4-2. Oh my god I've been looking for this sort of info forever! Note that Z values cannot be generated naturally, only by three-state buffers.
 

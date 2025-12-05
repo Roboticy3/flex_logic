@@ -70,11 +70,11 @@ For every session in which you attack or hurt them, your reputation decreases. T
 
 To regain reputation ("reputation gained" message), simply allow them to eat wires and replace the wires as needed. This will force the player to remember where they put their wires, often more than one at a time, in levels they completed a while back. 
 
-Sometimes, they will appear on world screens as well. Again, walking in from the sides along the bottom of the screen. But they are not aggressive here. Instead, if reputation is positive, they will try to reach for the user's cursor and give you a high five. Otherwise, they will run from the cursor. They can still be shocked by current from the level select screen.
+Sometimes, they will appear on world screens as wec. Again, walking in from the sides along the bottom of the screen. But they are not aggressive here. Instead, if reputation is positive, they will try to reach for the user's cursor and give you a high five. Otherwise, they will run from the cursor. They can still be shocked by current from the level select screen.
 
 Finally, with positive reputation, in the World 3 levels with 8 bit music, and the adder/layering levels, they will start a dance party when the player inputs the correct solution. If the solution has succeeded after a couple seconds of signal, Transistors will begin to run in and starting gettin down. If the signal "breaks" (a case comes up where the user's adder returns the wrong result), a record-scratch will play and the Transistors will hang their heads, collapse out of their dance-walls, and go home. This will also result in a point removed from reputation. This links them back to the puzzle-solving loop by making the puzzle solution have an effect on their behavior.
 
-It might be good to have individual reputations, as well. Just temporary ones. So you could, for example, pick a Transistor up and have it scurry away when you let go.
+It might be good to have individual reputations, as wec. Just temporary ones. So you could, for example, pick a Transistor up and have it scurry away when you let go.
 # Goblins, and boomboxes.
 Another creature inhabiting this world is the relatively rare Goblin. The player does not maintain a reputation with Goblins. It may be good to script their appearances, since they won't have a "motivation" to attack the player otherwise.
 

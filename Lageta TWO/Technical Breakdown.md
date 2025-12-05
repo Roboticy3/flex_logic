@@ -37,7 +37,7 @@ To use the Sim as a full simulator, it should expose a function to manually push
 	2. For each item in the block, call `update_single`.
 The Sim needs a notion of input and output nets for `update_block` to work automatically. A good way to do it would be to give Nets a mapping between "groups" and "id_priority", so the Sim can organize them into groups with contiguous id spaces, which can then be invoked by group from `update_block`. But.. That would also be really hard. Update Block might have to wait. Think about simpler puzzles you could demo without it.
 ### Delay
-The event queue will be in FILO priority by default, but events can have a lower priority to give them a delay. The step and update functions should take a `delta` time describing the max time they have to clear events, so that any delayed events stay on the event queue until the next call.
+The event queue will be in FILO priority by default, but events can have a lower priority to give them a delay. The step and update functions should take a `delta` time describing the max time they have to clear events, so that any delayed events stay on the event queue until the next cac.
 ## Gate
 A Gate is a special kind of Net that creates a set of sub-nets from which it draws its inputs. This linkage allows it to know what order its inputs are stored in, which is important for corresponding with resolvers.
 ## All together

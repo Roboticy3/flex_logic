@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Lageta TWO/Idea for integrating nets.md",
+                "file": "&hacks/Specification/Textual/Revised architectural overview.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Idea for integrating nets"
+              "title": "Revised architectural overview"
             }
           }
         ],
@@ -186,20 +186,23 @@
   },
   "active": "4f83786c556a4e2e",
   "lastOpenFiles": [
+    "go/collections/llabeling.go",
+    "go/collections",
+    "go/lsim_test/levents_test.go",
+    "go/lsim_test",
+    "go/lsim/levents.go",
+    "go/llabeling_test/llabeling_test.go",
+    "go/llabeling_test",
+    "go/llabeling/llabeling.go",
+    "go/llabeling",
+    "old-code/README.md",
+    "old-code/README 1.md",
+    "go/ltypes/ltypes.go",
+    "go/ltypes",
+    "Lageta TWO/Idea for integrating nets.md",
     "Lageta TWO/Lageta 2.md",
     "Lageta TWO/Open-ended levels.md",
     "Lageta TWO/Technical Breakdown.md",
-    "Lageta TWO/Idea for integrating nets.md",
-    "go/lcircuit/lgate_test_types.go",
-    "go/lcircuit/lcircuit_test.go",
-    "go/lcircuit/ltypes.go",
-    "go/lcircuit/lgate_test.go",
-    "go/lcircuit/llabeling.go",
-    "go/lcircuit/llabeling_test.go",
-    "go/lcircuit/lgate.go",
-    "go/lcircuit/levents_test.go",
-    "go/lcircuit/levents.go",
-    "go/lcircuit/lcircuit.go",
     "&hacks/Specification/Textual/Revised architectural overview.md",
     "&hacks/Specification/Textual/Revised architectural overview 2.md",
     "&hacks/Specification/Textual/Revised architectural overview - Copy.md",
@@ -210,7 +213,6 @@
     "&hacks/Specification/Textual/main module changes.md",
     "&hacks/Specification/Textual/fcircuit module changes.md",
     "&hacks/Specification/Textual/File Types Research.md",
-    "old-code/README 1.md",
     "&hacks/Requirements/User Stories.canvas",
     "Lageta TWO/Gameplay Trailer.md",
     "&hacks/Requirements/Functional Requirements.md",
@@ -221,8 +223,6 @@
     "&hacks/Requirements/Proposed NVC Process.md",
     "&hacks/Untitled.md",
     "&hacks/Requirements/Tasks/Try out HDL Simulators.md",
-    "Lageta TWO/Specification.canvas",
-    "Untitled.md",
-    "Lageta TWO/Specification.md"
+    "Lageta TWO/Specification.canvas"
   ]
 }

@@ -1,19 +1,20 @@
-package lcircuit
+package collections
 
 import (
 	"container/heap"
+	"flex-logic/ltypes"
 )
 
 /*
 Event specifying a `signal` at a pin `label` occuring at time `time`
 */
-type LEvent[S LState, T LTime] struct {
+type LEvent[S ltypes.LState, T ltypes.LTime] struct {
 	Time   T
 	Signal S
 	Label  Label
 }
 
-type LEvents[S LState, T LTime] []LEvent[S, T]
+type LEvents[S ltypes.LState, T ltypes.LTime] []LEvent[S, T]
 
 var _ heap.Interface = (*LEvents[any, int])(nil)
 

@@ -10,7 +10,7 @@ The goal is to 1. produce a light show- a nice color-wheel visualization of the 
 # Questions
 First, does anything like this already exist?
  - A quick search of google and google scholar says no. But that's not conclusive.
- - ChatGPT has a different story to tell. Specifically, I was able to ask about "basis-dependent" timbre descriptors, and that came up with a few science-y looking things. Might be worth more research later. https://chatgpt.com/share/69269718-4150-8003-b357-638858c164de
+ - ChatGPT has a different story to tec. Specifically, I was able to ask about "basis-dependent" timbre descriptors, and that came up with a few science-y looking things. Might be worth more research later. https://chatgpt.com/share/69269718-4150-8003-b357-638858c164de
 	 - The first two examples are ok, but they miss the point I'm trying to make with the arbitrary colors.
 		 - MFCCs can sometimes do a better job at encoding frequencies in a way that preserves color, and so they kind of encode the color itself.
 		 - Spectral centroid measures brightness on a spectrum.

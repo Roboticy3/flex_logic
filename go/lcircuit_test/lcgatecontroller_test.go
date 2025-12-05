@@ -1,6 +1,7 @@
 package lcircuit_test
 
 import (
+	c "flex-logic/collections"
 	"flex-logic/lcircuit"
 	"testing"
 )
@@ -50,7 +51,7 @@ func TestAddMultipleGates(t *testing.T) {
 	gview := lcircuit.LCGateController[int, int]{LCircuit: circuit}
 	circuit.SetGateTypes(testGates)
 
-	results := []lcircuit.Label{
+	results := []c.Label{
 		gview.AddGate("AND"),
 		gview.AddGate("NOT"),
 		gview.AddGate("LATCH"),

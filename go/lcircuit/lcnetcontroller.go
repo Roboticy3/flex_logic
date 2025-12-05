@@ -1,6 +1,8 @@
 package lcircuit
 
 import (
+	c "flex-logic/collections"
+	"flex-logic/ltypes"
 	"slices"
 	"sort"
 )
@@ -9,7 +11,7 @@ import (
 View and edit a circuit via its nets, also with more advanced primitives for
 wires.
 */
-type LCNetController[S LState, T LTime] struct {
+type LCNetController[S ltypes.LState, T ltypes.LTime] struct {
 	*LCircuit[S, T]
 }
 
@@ -18,13 +20,13 @@ Get pins attached to `nid`, or empty array if `nid` is invalid
 
 O(q)
 */
-func (nc LCNetController[S, T]) GetPins(nid Label) []Label {
+func (nc LCNetController[S, T]) GetPins(nid c.Label) []c.Label {
 	p_net := nc.netlist.Get(nid)
 	if p_net == nil {
-		return []Label{}
+		return []c.Label{}
 	}
 
-	pins := make([]Label, len(p_net.Pins))
+	pins := make([]c.Label, len(p_net.Pins))
 	copy(pins, p_net.Pins)
 	return pins
 }
@@ -37,7 +39,7 @@ is removed from the circuit.
 
 O(q) for q average connections on a net.
 */
-func (nc LCNetController[S, T]) Detach(nid Label, pid Label) bool {
+func (nc LCNetController[S, T]) Detach(nid c.Label, pid c.Label) bool {
 
 	p_pin, p_net := nc.pinlist.Get(pid), nc.netlist.Get(nid)
 	if p_pin == nil || p_net == nil {
@@ -72,7 +74,7 @@ Internal function. Produce one-way connection from `nid` to `pid`.
 Assumes `p_net` is not `nil` and corresponds to `nid`. Returns false if `nid`
 was already connected to `pid`.
 */
-func (nc LCNetController[S, T]) attach_net(nid Label, pid Label, p_net *LNet[S, T]) bool {
+func (nc LCNetController[S, T]) attach_net(nid c.Label, pid c.Label, p_net *LNet[S, T]) bool {
 	i := sort.Search(len(p_net.Pins), func(k int) bool { return p_net.Pins[k] >= pid })
 	if i >= len(p_net.Pins) || p_net.Pins[i] != pid {
 		p_net.Pins = slices.Insert(p_net.Pins, i, pid)
@@ -88,7 +90,7 @@ Internal function. Produce one-way connection from `pid` to `nid`.
 Assumes `p_pin` is not `nil` and corresponds to `pid`. Returns false if `pid`
 was already connected to `nid`.
 */
-func (nc LCNetController[S, T]) attach_pin(nid Label, pid Label, p_pin *LPin[S, T]) bool {
+func (nc LCNetController[S, T]) attach_pin(nid c.Label, pid c.Label, p_pin *LPin[S, T]) bool {
 	i := sort.Search(len(p_pin.Nets), func(k int) bool { return p_pin.Nets[k] >= nid })
 	//skip insertion if the pid already exists
 	if i >= len(p_pin.Nets) || p_pin.Nets[i] != nid {
@@ -106,7 +108,7 @@ connection and return true.
 
 O(q) for q average connections on a net.
 */
-func (nc LCNetController[S, T]) Attach(nid Label, pid Label) bool {
+func (nc LCNetController[S, T]) Attach(nid c.Label, pid c.Label) bool {
 
 	p_pin, p_net := nc.pinlist.Get(pid), nc.netlist.Get(nid)
 	if p_pin == nil || p_net == nil {
@@ -123,13 +125,13 @@ func (nc LCNetController[S, T]) Attach(nid Label, pid Label) bool {
 Merge nets at `nids` together. The first valid element of `nids` is the target
 net for the merge, so its `state` and `tid` will dominate.
 
-Return the merge target, or `LABEL_EMPTY` if no target was found
+Return the merge target, or `c.LABEL_EMPTY` if no target was found
 
 O(nq log q) for n valid elements of `nids`, q average connections on a net.
 */
-func (nc LCNetController[S, T]) Merge(nids []Label) Label {
+func (nc LCNetController[S, T]) Merge(nids []c.Label) c.Label {
 
-	target := LABEL_EMPTY
+	target := c.LABEL_EMPTY
 	target_i := -1 //store the index where the target was found for slicing
 	for i, nid := range nids {
 		p_net := nc.netlist.Get(nid)
@@ -140,12 +142,12 @@ func (nc LCNetController[S, T]) Merge(nids []Label) Label {
 		}
 	}
 
-	if target == LABEL_EMPTY {
-		return LABEL_EMPTY
+	if target == c.LABEL_EMPTY {
+		return c.LABEL_EMPTY
 	}
 
 	if target_i == len(nids)-1 {
-		return LABEL_EMPTY
+		return c.LABEL_EMPTY
 	}
 
 	nids = nids[target_i+1:]
@@ -164,7 +166,7 @@ invalid, replace it with nid2.
 
 O(q log q) for q average connections on a net.
 */
-func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
+func (nc LCNetController[S, T]) MergeTwo(nid1 c.Label, nid2 c.Label) bool {
 	p_source := nc.netlist.Get(nid2)
 	if p_source == nil {
 		return false
@@ -172,7 +174,7 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 
 	p_target := nc.netlist.Get(nid1)
 	if p_target == nil {
-		if nid1 == LABEL_EMPTY {
+		if nid1 == c.LABEL_EMPTY {
 			return false
 		}
 
@@ -186,7 +188,7 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 	} else {
 		//Otherwise, merge the pin arrays, use target for the tid and state
 		//Since net pins are sorted, the merge is O(q) with this:
-		pins := make([]Label, len(p_target.Pins)+len(p_source.Pins))
+		pins := make([]c.Label, len(p_target.Pins)+len(p_source.Pins))
 		i, j := 0, 0
 		for p := range pins {
 			//push target
@@ -237,28 +239,28 @@ func (nc LCNetController[S, T]) MergeTwo(nid1 Label, nid2 Label) bool {
 AddNet a net to the circuit. Copies the input into the circuit, sorting and
 validating pins.
 
-If no valid pins are on net.pins, the function fails and returns LABEL_EMPTY
+If no valid pins are on net.pins, the function fails and returns c.LABEL_EMPTY
 
 O(q^2) for q average connections
 */
-func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) Label {
+func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) c.Label {
 
 	//new_net to copy net into. Helps with checking pins
 	new_net := LNet[S, T]{
-		Pins:  []Label{},
+		Pins:  []c.Label{},
 		Tid:   net.Tid,
 		State: net.State,
 	}
 	nid := nc.netlist.Add(new_net, 0)
 
 	//attempt to attach one (1) pin from `net` to `nid`
-	//If this fails, don't add the net and return `LABEL_EMPTY`
+	//If this fails, don't add the net and return `c.LABEL_EMPTY`
 	valid := -1
 	for i, pid := range net.Pins {
 		p_pin := nc.pinlist.Get(pid)
 		if p_pin != nil {
 			nc.attach_pin(nid, pid, p_pin)
-			(*nc.netlist)[nid].Pins = []Label{pid}
+			(*nc.netlist)[nid].Pins = []c.Label{pid}
 			valid = i
 			break
 		}
@@ -267,7 +269,7 @@ func (nc LCNetController[S, T]) AddNet(net LNet[S, T]) Label {
 	if valid == -1 {
 		var zero LNet[S, T]
 		nc.netlist.Remove(nid, zero)
-		return LABEL_EMPTY
+		return c.LABEL_EMPTY
 	}
 
 	//now we know at least one pin was valid, start from the next pin and try to
@@ -294,13 +296,13 @@ func (nc LCNetController[S, T]) RemoveNet(net LNet[S, T], empty_only bool) bool 
 			continue
 		}
 
-		nets := make([]Label, len(p_pin.Nets))
+		nets := make([]c.Label, len(p_pin.Nets))
 		copy(nets, p_pin.Nets)
 
 		for _, nid := range nets {
 			if empty_only {
 				p_net := nc.netlist.Get(nid)
-				if p_net == nil || p_net.Tid != LABEL_EMPTY {
+				if p_net == nil || p_net.Tid != c.LABEL_EMPTY {
 					continue
 				}
 			}
@@ -311,11 +313,11 @@ func (nc LCNetController[S, T]) RemoveNet(net LNet[S, T], empty_only bool) bool 
 	return valid
 }
 
-func (nc LCNetController[S, T]) ListNets() []Label {
-	result := []Label{}
+func (nc LCNetController[S, T]) ListNets() []c.Label {
+	result := []c.Label{}
 	for nid, net := range *nc.netlist {
 		if !net.IsEmpty() {
-			result = append(result, Label(nid))
+			result = append(result, c.Label(nid))
 		}
 	}
 

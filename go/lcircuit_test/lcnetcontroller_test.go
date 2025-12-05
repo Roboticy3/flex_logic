@@ -1,6 +1,7 @@
 package lcircuit_test
 
 import (
+	c "flex-logic/collections"
 	"flex-logic/lcircuit"
 	"testing"
 )
@@ -16,7 +17,7 @@ func TestMergeFromEmpty(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	result := nc.MergeTwo(0, lcircuit.LABEL_EMPTY)
+	result := nc.MergeTwo(0, c.LABEL_EMPTY)
 
 	gates := gc.ListGateIds()
 	pins := pc.ListPins()
@@ -51,7 +52,7 @@ func TestMergeIntoEmpty(t *testing.T) {
 	gc.AddGate("NOT")
 	gc.AddGate("LATCH")
 
-	result := nc.MergeTwo(lcircuit.LABEL_EMPTY, 0)
+	result := nc.MergeTwo(c.LABEL_EMPTY, 0)
 
 	gates := gc.ListGateIds()
 	pins := pc.ListPins()
@@ -160,7 +161,7 @@ func TestMergeMany(t *testing.T) {
 			36 pins added, 5 removed. Pins are sustained through merge. Total 31 valid
 			12 nets added.
 	*/
-	nc.Merge([]lcircuit.Label{-1, 0, 4, 5, 6, 7, 8, 10, 11})
+	nc.Merge([]c.Label{-1, 0, 4, 5, 6, 7, 8, 10, 11})
 
 	gates = gc.ListGateIds()
 	pins = pc.ListPins()
@@ -189,7 +190,7 @@ func TestAddNet(t *testing.T) {
 	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
+		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
 		Tid:   -1,
 		State: -1,
 	}
@@ -197,7 +198,7 @@ func TestAddNet(t *testing.T) {
 	pins := nc.GetPins(nid)
 	nets := nc.ListNets()
 
-	if nid == lcircuit.LABEL_EMPTY {
+	if nid == c.LABEL_EMPTY {
 		t.Errorf("Must be able to retrieve net %d to continue with test. valid nets: %v", nid, nets)
 		return
 	}
@@ -228,7 +229,7 @@ func TestFailAddNet(t *testing.T) {
 	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
+		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
 		Tid:   -1,
 		State: -1,
 	}
@@ -240,7 +241,7 @@ func TestFailAddNet(t *testing.T) {
 		invalid states, the net should be removed cleanly.
 	*/
 
-	if nid == lcircuit.LABEL_EMPTY {
+	if nid == c.LABEL_EMPTY {
 		t.Errorf("Expected to fail adding net, found net %d with pins %v", nid, pins)
 		return
 	}
@@ -257,7 +258,7 @@ func TestRemoveNetClean(t *testing.T) {
 	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
+		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
 		Tid:   -1,
 		State: -1,
 	}
@@ -288,7 +289,7 @@ func TestRemoveNetDirty(t *testing.T) {
 	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
+		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
 		Tid:   -1,
 		State: -1,
 	}
@@ -300,7 +301,7 @@ func TestRemoveNetDirty(t *testing.T) {
 		, but it still makes me comfortable to have it around.
 	*/
 	dirty_remove := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{0, 1, 2, -1, 9},
+		Pins:  []c.Label{0, 1, 2, -1, 9},
 		Tid:   -1,
 		State: -1,
 	}
@@ -326,7 +327,7 @@ func TestRemoveNetInvalid(t *testing.T) {
 	gc.AddGate("LATCH")
 
 	new_net := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{8, 4, 2, 0, -1, 345, 4},
+		Pins:  []c.Label{8, 4, 2, 0, -1, 345, 4},
 		Tid:   -1,
 		State: -1,
 	}
@@ -337,7 +338,7 @@ func TestRemoveNetInvalid(t *testing.T) {
 		should be false
 	*/
 	invalid_remove := lcircuit.LNet[int, int]{
-		Pins:  []lcircuit.Label{-1, -324, 456, 9},
+		Pins:  []c.Label{-1, -324, 456, 9},
 		Tid:   -1,
 		State: -1,
 	}
@@ -363,31 +364,31 @@ func TestComplexNetwork(t *testing.T) {
 		as expected. Let's see what's wrong.
 	*/
 
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
 
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{3, 4, 7, 8, 9},
+		Pins: []c.Label{3, 4, 7, 8, 9},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{9, 10, 11, 12},
+		Pins: []c.Label{9, 10, 11, 12},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{2, 5, 6, 9, 10},
+		Pins: []c.Label{2, 5, 6, 9, 10},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{0, 1, 2, 3, 4},
+		Pins: []c.Label{0, 1, 2, 3, 4},
 	})
 
 	nets := nc.ListNets()
@@ -395,7 +396,7 @@ func TestComplexNetwork(t *testing.T) {
 		t.Errorf("Expected 5 valid nets, got %v", nets)
 	}
 
-	connections := [][]lcircuit.Label{
+	connections := [][]c.Label{
 		nc.GetPins(0),
 		nc.GetPins(1),
 		nc.GetPins(2),
@@ -416,19 +417,19 @@ func TestCrumble(t *testing.T) {
 	/*
 		We need 13 pins for this.
 	*/
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
 
 	/*
 		the example I drew on paper has the following four nets to start.
@@ -448,20 +449,20 @@ func TestCrumble(t *testing.T) {
 	*/
 
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{3, 4, 7, 8, 9},
+		Pins: []c.Label{3, 4, 7, 8, 9},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{9, 10, 11, 12},
+		Pins: []c.Label{9, 10, 11, 12},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{2, 5, 6, 9, 10},
+		Pins: []c.Label{2, 5, 6, 9, 10},
 	})
 	nc.AddNet(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{0, 1, 2, 3, 4},
+		Pins: []c.Label{0, 1, 2, 3, 4},
 	})
 
 	nc.Crumble(lcircuit.LNet[int, int]{
-		Pins: []lcircuit.Label{5, 6, 8, 9, 10},
+		Pins: []c.Label{5, 6, 8, 9, 10},
 	})
 
 	nets := nc.ListNets()
@@ -473,7 +474,7 @@ func TestCrumble(t *testing.T) {
 		t.Errorf("Expected 13 valid pins, got %v", pins)
 	}
 
-	connections := [][]lcircuit.Label{
+	connections := [][]c.Label{
 		nc.GetPins(0),
 		nc.GetPins(1),
 		nc.GetPins(2),

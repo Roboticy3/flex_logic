@@ -16,7 +16,7 @@ func solve(delta:float):
 		
 		# In theory, this inner loop should be "easy" to parallelize.
 		# This would require placing a lock on values changed by each `solve`
-		#	call. 
+		#	cac. 
 		# A proper priority queue system would also make this better.
 		for e in events_keys:
 			if events[e] <= delta:

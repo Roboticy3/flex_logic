@@ -1,5 +1,10 @@
 package lcircuit
 
+import (
+	c "flex-logic/collections"
+	"flex-logic/ltypes"
+)
+
 /*
 a pin on a specific component in a circuit
 
@@ -8,8 +13,8 @@ is an easy way to add empty entries.
 
 `nets` will remain sorted and unique for easy search.
 */
-type LPin[S LState, T LTime] struct {
-	Nets  []Label
+type LPin[S ltypes.LState, T ltypes.LTime] struct {
+	Nets  []c.Label
 	Valid bool
 }
 
@@ -35,9 +40,9 @@ events with its `tid`.
 
 `pins` will remain sorted and unique for easy search.
 */
-type LNet[S LState, T LTime] struct {
-	Pins  []Label
-	Tid   Label
+type LNet[S ltypes.LState, T ltypes.LTime] struct {
+	Pins  []c.Label
+	Tid   c.Label
 	State S
 }
 
@@ -58,32 +63,33 @@ func (net LNet[S, T]) Swap(i, j int) {
 }
 
 /*
-	Base type for a circuit
-		`netlist`	labeling over nets on the circuit
-		`pinlist` labeling over pins on the circuit
-		`gatetypes` labeling over the `tid` field of each net in `netlist`
+Base type for a circuit
 
-		Each pin belongs to n nets
-		Each net sees p pins and has an optional gate type.
+	`netlist`	labeling over nets on the circuit
+	`pinlist` labeling over pins on the circuit
+	`gatetypes` labeling over the `tid` field of each net in `netlist`
 
-	Edit using only LCGateController and LCWireController to maintain a valid
-	state for simulation. Otherwise simulating a circuit can have undefined
-	behavior.
+	Each pin belongs to n nets
+	Each net sees p pins and has an optional gate type.
+
+Edit using only LCGateController and LCWireController to maintain a valid
+state for simulation. Otherwise simulating a circuit can have undefined
+behavior.
 */
-type LCircuit[S LState, T LTime] struct {
-	netlist   *LLabeling[LNet[S, T]]
-	pinlist   *LLabeling[LPin[S, T]]
-	gatetypes *LLabeling[LGate[S, T]]
+type LCircuit[S ltypes.LState, T ltypes.LTime] struct {
+	netlist   *c.LLabeling[LNet[S, T]]
+	pinlist   *c.LLabeling[LPin[S, T]]
+	gatetypes *c.LLabeling[LGate[S, T]]
 }
 
-func (lc LCircuit[S, T]) GetNetlist() LLabeling[LNet[S, T]] {
+func (lc LCircuit[S, T]) GetNetlist() c.LLabeling[LNet[S, T]] {
 	if lc.netlist == nil {
-		return LLabeling[LNet[S, T]]{}
+		return c.LLabeling[LNet[S, T]]{}
 	}
-	result := make(LLabeling[LNet[S, T]], len(*lc.netlist))
+	result := make(c.LLabeling[LNet[S, T]], len(*lc.netlist))
 	for i, net := range *lc.netlist {
 		if net.Pins != nil {
-			result[i].Pins = make([]Label, len(net.Pins))
+			result[i].Pins = make([]c.Label, len(net.Pins))
 			copy(result[i].Pins, net.Pins)
 		}
 		result[i].Tid = net.Tid
@@ -92,14 +98,14 @@ func (lc LCircuit[S, T]) GetNetlist() LLabeling[LNet[S, T]] {
 	return result
 }
 
-func (lc LCircuit[S, T]) GetPinlist() LLabeling[LPin[S, T]] {
+func (lc LCircuit[S, T]) GetPinlist() c.LLabeling[LPin[S, T]] {
 	if lc.pinlist == nil {
-		return LLabeling[LPin[S, T]]{}
+		return c.LLabeling[LPin[S, T]]{}
 	}
-	result := make(LLabeling[LPin[S, T]], len(*lc.pinlist))
+	result := make(c.LLabeling[LPin[S, T]], len(*lc.pinlist))
 	for i, pin := range *lc.pinlist {
 		if pin.Nets != nil {
-			result[i].Nets = make([]Label, len(pin.Nets))
+			result[i].Nets = make([]c.Label, len(pin.Nets))
 			copy(result[i].Nets, pin.Nets)
 		}
 		result[i].Valid = pin.Valid
@@ -107,40 +113,40 @@ func (lc LCircuit[S, T]) GetPinlist() LLabeling[LPin[S, T]] {
 	return result
 }
 
-func (lc LCircuit[S, T]) FindTypeName(gname string) Label {
-	tid := LABEL_EMPTY
+func (lc LCircuit[S, T]) FindTypeName(gname string) c.Label {
+	tid := c.LABEL_EMPTY
 	for i := range *lc.gatetypes {
 		if (*lc.gatetypes)[i].Name == gname {
-			tid = Label(i)
+			tid = c.Label(i)
 			break
 		}
 	}
 
-	if tid == LABEL_EMPTY {
-		return LABEL_EMPTY
+	if tid == c.LABEL_EMPTY {
+		return c.LABEL_EMPTY
 	}
 
 	return tid
 }
 
-func (lc LCircuit[S, T]) GetGateTypes() LLabeling[LGate[S, T]] {
+func (lc LCircuit[S, T]) GetGateTypes() c.LLabeling[LGate[S, T]] {
 	if lc.gatetypes == nil {
-		return LLabeling[LGate[S, T]]{}
+		return c.LLabeling[LGate[S, T]]{}
 	}
-	result := make(LLabeling[LGate[S, T]], len(*lc.gatetypes))
+	result := make(c.LLabeling[LGate[S, T]], len(*lc.gatetypes))
 	copy(result, *lc.gatetypes)
 	return result
 }
 
-func (lc *LCircuit[S, T]) SetGateTypes(new_types LLabeling[LGate[S, T]]) {
-	*lc.gatetypes = make(LLabeling[LGate[S, T]], len(new_types))
+func (lc *LCircuit[S, T]) SetGateTypes(new_types c.LLabeling[LGate[S, T]]) {
+	*lc.gatetypes = make(c.LLabeling[LGate[S, T]], len(new_types))
 	copy(*lc.gatetypes, new_types)
 }
 
-func CreateCircuit[S LState, T LTime]() *LCircuit[S, T] {
+func CreateCircuit[S ltypes.LState, T ltypes.LTime]() *LCircuit[S, T] {
 	return &LCircuit[S, T]{
-		&LLabeling[LNet[S, T]]{},
-		&LLabeling[LPin[S, T]]{},
-		&LLabeling[LGate[S, T]]{},
+		&c.LLabeling[LNet[S, T]]{},
+		&c.LLabeling[LPin[S, T]]{},
+		&c.LLabeling[LGate[S, T]]{},
 	}
 }

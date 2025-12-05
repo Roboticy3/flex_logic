@@ -1,6 +1,7 @@
 package lcircuit_test
 
 import (
+	c "flex-logic/collections"
 	"flex-logic/lcircuit"
 	"testing"
 )
@@ -9,7 +10,7 @@ func TestAddPinEmptyNet(t *testing.T) {
 	circuit := lcircuit.CreateCircuit[int, int]()
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 
-	pid := pc.AddPin(lcircuit.LABEL_EMPTY)
+	pid := pc.AddPin(c.LABEL_EMPTY)
 
 	if len(pc.GetPinlist()) != 1 {
 		t.Errorf("Expected 1 slot in pinlist, got %d", len(pc.GetPinlist()))
@@ -23,13 +24,13 @@ func TestFillInPin(t *testing.T) {
 	circuit := lcircuit.CreateCircuit[int, int]()
 	pc := lcircuit.LCPinController[int, int]{LCircuit: circuit}
 
-	pc.AddPin(lcircuit.LABEL_EMPTY)
-	middle := pc.AddPin(lcircuit.LABEL_EMPTY)
-	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
+	middle := pc.AddPin(c.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
 
 	pc.RemovePin(middle)
 
-	pc.AddPin(lcircuit.LABEL_EMPTY)
+	pc.AddPin(c.LABEL_EMPTY)
 	pins := pc.ListPins()
 
 	if len(pins) != 3 || pins[0] != 0 || pins[1] != 1 || pins[2] != 2 {
@@ -52,7 +53,7 @@ func TestTamperGate(t *testing.T) {
 	r1 := pc.AddPin(0)
 	r2 := pc.RemovePin(0)
 
-	if r1 == lcircuit.LABEL_EMPTY || !r2 {
+	if r1 == c.LABEL_EMPTY || !r2 {
 		t.Errorf("Expected tampering to succeed. Add: %v, Remove: %v", r1, r2)
 	}
 	if len(pc.GetPinlist()) != 4 {

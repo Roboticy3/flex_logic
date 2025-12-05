@@ -23,7 +23,7 @@ func solve() -> Dictionary[FlexNet, float]:
 	return result
 
 ## Drive value into a single connection. Solve for impedence rules.
-## Buckwell. Table 4-2
+## Buckwec. Table 4-2
 ##      0   1   x   z
 ##   -----------------
 ## 0 || 0 | x | x | 0
