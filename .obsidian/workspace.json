@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "&hacks/Specification/Textual/Revised architectural overview.md",
+                "file": "Lageta TWO/Godot-centric approach.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Revised architectural overview"
+              "title": "Godot-centric approach"
             }
           }
         ],
@@ -186,6 +186,10 @@
   },
   "active": "4f83786c556a4e2e",
   "lastOpenFiles": [
+    "Lageta TWO/Idea for integrating nets.md",
+    "Lageta TWO/Godot-centric approach.md",
+    "Lageta TWO/Open-ended levels.md",
+    "&hacks/Specification/Textual/Revised architectural overview.md",
     "go/collections/llabeling.go",
     "go/collections",
     "go/lsim_test/levents_test.go",
@@ -198,12 +202,8 @@
     "old-code/README.md",
     "old-code/README 1.md",
     "go/ltypes/ltypes.go",
-    "go/ltypes",
-    "Lageta TWO/Idea for integrating nets.md",
     "Lageta TWO/Lageta 2.md",
-    "Lageta TWO/Open-ended levels.md",
     "Lageta TWO/Technical Breakdown.md",
-    "&hacks/Specification/Textual/Revised architectural overview.md",
     "&hacks/Specification/Textual/Revised architectural overview 2.md",
     "&hacks/Specification/Textual/Revised architectural overview - Copy.md",
     "&hacks/Specification/UML/UML Test.md",

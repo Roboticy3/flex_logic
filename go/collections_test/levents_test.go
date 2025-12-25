@@ -71,7 +71,7 @@ func TestLeventsWithStringState(t *testing.T) {
 
 	heap.Push(events, collections.LEvent[string, testTime]{Time: 10, Signal: "ON", Label: 1})
 	heap.Push(events, collections.LEvent[string, testTime]{Time: 2, Signal: "OFF", Label: 2})
-	heap.Push(events, collections.LEvent[string, testTime]{Time: 7, Signal: "IDcollections.LE", Label: 3})
+	heap.Push(events, collections.LEvent[string, testTime]{Time: 7, Signal: "Signal", Label: 3})
 
 	if events.Len() != 3 {
 		t.Errorf("Expected 3 events, got %d", events.Len())

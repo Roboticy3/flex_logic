@@ -366,3 +366,32 @@ func (nc LCNetController[S, T]) Crumble(net LNet) {
 		}
 	}
 }
+
+/*
+It is relevant to a simulation to want the open neighborhood of a certain net.
+*/
+func (nc LCNetController[S, T]) GetNeighborhood(nid c.Label) []c.Label {
+	p_net := nc.netlist.Get(nid)
+	if p_net == nil {
+		return []c.Label{}
+	}
+
+	result := []c.Label{}
+
+	for _, pid := range p_net.Pins {
+		p_pin := nc.pinlist.Get(pid)
+		if p_pin == nil {
+			continue
+		}
+
+		for _, nid2 := range p_pin.Nets {
+			if nid == nid2 {
+				continue
+			}
+
+			result = append(result, nid2)
+		}
+	}
+
+	return result
+}

@@ -6,7 +6,7 @@ import (
 	"flex-logic/ltypes"
 )
 
-type Lsim[S ltypes.LState, T ltypes.LTime] struct {
-	Circuit lcircuit.LCircuit[S, T]
-	Events  c.LEvents[S, T]
+type LSim[S ltypes.LState, T ltypes.LTime] struct {
+	Circuit *lcircuit.LCircuit[S, T]
+	Events  *c.LEvents[S, T]
 }
